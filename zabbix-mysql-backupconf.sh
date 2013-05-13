@@ -9,7 +9,7 @@
 # Configuration Backup for Zabbix 2.0 w/MySQL
 #
 # Author: Ricardo Santos (rsantos at gmail.com)
-# http://zabbixzone.com
+# http://zabbixzone.com/zabbix/backuping-only-the-zabbix-configuration/
 #
 # modified by Jens Berthold, 2012
 #
@@ -19,16 +19,29 @@
 # - Jonathan Bayer
 #
 
+#
 # mysql config
-DBHOST="localhost"
-DBNAME="zabbix"
+#
+DBHOST="1.2.3.4"
+DBNAME="zabbixdb"
 DBUSER="zabbix"
-DBPASS="YOURMYSQLPASSWORDHERE"
+DBPASS="password"
 
+#
 # target path
-MAINDIR="/var/lib/zabbix/backupconf"
-DUMPDIR="${MAINDIR}/`date +%Y%m%d-%H%M`"
+#
 
+#MAINDIR="/var/lib/zabbix/backupconf"
+# following will store the backup in a subdirectory of the current directory
+MAINDIR="`dirname \"$0\"`"
+
+if [ ! -x /usr/bin/mysqldump ]; then
+	echo "mysqldump not found."
+	echo "(with Debian, \"apt-get install mysql-client\" will help)"
+	exit 1
+fi
+
+DUMPDIR="${MAINDIR}/`date +%Y%m%d-%H%M`"
 mkdir -p "${DUMPDIR}"
 
 # configuration tables
@@ -58,15 +71,15 @@ DUMPFILE="${DUMPDIR}/zbx-conf-bkup-`date +%Y%m%d-%H%M`.sql"
 
 # CONFTABLES
 for table in ${CONFTABLES[*]}; do
-	echo "Backuping table ${table}"
-	mysqldump -R --opt --single-transaction --skip-lock-tables --extended-insert=FALSE \
+	echo "Backuping configuration table ${table}"
+	mysqldump --routines --opt --single-transaction --skip-lock-tables --extended-insert=FALSE \
 		-h ${DBHOST} -u ${DBUSER} -p${DBPASS} ${DBNAME} --tables ${table} >>"${DUMPFILE}"
 done
 
 # DATATABLES
 for table in ${DATATABLES[*]}; do
-	echo "Backuping schema table ${table}"
-	mysqldump -R --opt --single-transaction --skip-lock-tables --no-data	\
+	echo "Backuping data table ${table}"
+	mysqldump --routines --opt --single-transaction --skip-lock-tables --no-data	\
 		-h ${DBHOST} -u ${DBUSER} -p${DBPASS} ${DBNAME} --tables ${table} >>"${DUMPFILE}"
 done
 
@@ -74,3 +87,5 @@ gzip -f "${DUMPFILE}"
 
 echo
 echo "Backup Completed - ${DUMPDIR}"
+echo "Hit ENTER"
+read
