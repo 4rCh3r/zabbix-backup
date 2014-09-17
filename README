@@ -1,7 +1,4 @@
-=============================================================
- This is the repository for all scripts from ZabbixZone Blog
- http://zabbixzone.com
+This is a database backup script for Zabbix 2.2.3 that distincts between configuration and mass data tables.
 
- Fell free to send your contribution, bugs and suggestions
- Ricardo Santos (rsantos at gmail.com)
-=============================================================
+Tables holding configuration data will be fully backuped while for mass data tables only the table schema is stored.
+This way you have a small backup of your complete configuration, and in case of disaster "only" use your item history.
