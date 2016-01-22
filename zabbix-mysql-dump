@@ -60,10 +60,11 @@
 
 #
 # DEFAULT VALUES
+# 
+# DO NOT EDIT THESE VALUES!
+# Instead, use command line parameters or a config file to specify options.
 #
-# store backup below current directory
 DUMPDIR="$PWD"
-# DB settings
 DBHOST="127.0.0.1"
 DBNAME="zabbix"
 DBUSER="zabbix"
