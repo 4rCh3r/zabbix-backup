@@ -17,7 +17,7 @@
 #      - Petr Jendrejovsky
 #      - Jonathan Bayer
 #      - Andreas Niedermann (dre-)
-#      - Mișu Moldovan
+#      - Mișu Moldovan (dumol)
 #
 # HISTORY
 #     0.7.2 (2015-04-07)
@@ -53,8 +53,9 @@
 #
 # DEFAULT VALUES
 #
-# following will store the backup in a subdirectory of the current directory
-DUMPDIR="$(dirname "$(realpath -s "$BASH_SOURCE")")"
+# store backup below current directory
+DUMPDIR="$PWD"
+# DB settings
 DBHOST="127.0.0.1"
 DBNAME="zabbix"
 DBUSER="zabbix"
@@ -73,7 +74,7 @@ OPTIONS
 	 -d database  - Zabbix database name (default: $DBNAME)
 	 -u user      - MySQL user to access Zabbix database (default: $DBUSER)
 	 -p password  - MySQL user password (specify "-" for a prompt)
-	 -o outputdir - output directory for the MySQL dump file
+	 -o outputdir - output directory for MySQL dump
 	                (default: $DUMPDIR) 
 
 EXAMPLE
