@@ -24,10 +24,11 @@
 # HISTORY
 #     0.7.2 (2016-01-22)
 #         FIX: Only invoke `dig` if available
-#         ENH: Option -r to rotate backup files (by Daniel Schneller)
+#         ENH: Option -c to use a MySQL config ("options") file (suggested by Daniel Schneller)
+#         ENH: Option -r to rotate backup files (Daniel Schneller)
 #         ENH: Add database version to filename if available
-#         ENH: Add quiet mode. IP reverse lookup optional (by Daniel Schneller)
-#         ENH: Bash related fixes (by Misu Moldovan)
+#         ENH: Add quiet mode. IP reverse lookup optional (Daniel Schneller)
+#         ENH: Bash related fixes (Misu Moldovan)
 #         CHG: Default output directory is now $PWD instead of script dir
 #
 #     0.7.1 (2015-01-27)
@@ -45,7 +46,7 @@
 #         NEW: Added table list comparison between database and script
 #
 #     0.4.0 (2012-03-02)
-#         REV: Incorporated mysqldump options suggested by Jonathan Bayer
+#         REV: Incorporated mysqldump options (suggested by Jonathan Bayer)
 #
 #     0.3.0 (2012-02-06)
 #         ENH: Backup of Zabbix 1.9.x / 2.0.0, removed unnecessary use of
@@ -84,7 +85,10 @@ OPTIONS
 	-d database  - Zabbix database name (default: $DBNAME)
 	-u user      - MySQL user to access Zabbix database (default: $DBUSER)
 	-p password  - MySQL user password (specify "-" for a prompt)
-	-o outputdir - output directory for MySQL dump
+	-c file      - Use the given MySQL options file.
+	               Special note for option "database": the first one found in
+				   the file via grep is used for mysqldump!
+	-o outputdir - output directory for MySQL dump.
 	               (default: $DUMPDIR)
 	-r num       - Rotate backups, keeping up to num generations in the
 	               output directory. Uses filename to match (default: keep all)
@@ -94,6 +98,8 @@ OPTIONS
 EXAMPLE
 	$(basename $BASH_SOURCE) -h 1.2.3.4 -d zabbixdb -u zabbix -p test
 	$(basename $BASH_SOURCE) -d zabbixdb -u zabbix -p - -o /tmp
+	$(basename $BASH_SOURCE) -h 1.2.3.4 -d zabbixdb -c /etc/mysql-backup-credentials.cnf
+	$(basename $BASH_SOURCE) -c /etc/mysql/mysql.cnf
 
 EOF
 	exit 1
@@ -102,12 +108,13 @@ fi
 #
 # PARSE COMMAND LINE ARGUMENTS
 #
-while getopts ":h:d:u:p:o:r:qn" opt; do
+while getopts ":h:d:u:p:o:r:c:qn" opt; do
 	case $opt in
 		h)  DBHOST="$OPTARG" ;;
 		d)  DBNAME="$OPTARG" ;;
 		u)  DBUSER="$OPTARG" ;;
 		p)  DBPASS="$OPTARG" ;;
+		c)  CNFFILE="$OPTARG" ;;
 		o)  DUMPDIR="$OPTARG" ;;
 		r)  GENERATIONSTOKEEP=$(printf '%.0f' "$OPTARG") ;;
 		n)  REVERSELOOKUP="no" ;;
@@ -117,22 +124,39 @@ while getopts ":h:d:u:p:o:r:qn" opt; do
 	esac
 done
 
-if [ "$DBPASS" = "" ]; then
-	echo "No password given" >&2
-	exit 1
-fi
-
+# Password prompt
 if [ "$DBPASS" = "-" ]; then
 	read -s -p "Enter MySQL password for user '$DBUSER' (input will be hidden): " DBPASS
 	echo ""
 fi
 
+# Config file validations
+if [ ! -z "$CNFFILE" ]; then
+	if [ ! -r "$CNFFILE" ]; then
+		echo "ERROR: Cannot read configuration file $CNFFILE" >&2
+		exit 1
+	fi
+	# Database name needs special treatment:
+	# For mysqldump it has to be specified on the command line!
+	# Therefore we need to get it from the config file
+	if [ -z "$DBNAME" ]; then
+		DBNAME=$(grep -m 1 ^database= "$CNFFILE" | cut -d= -f2)
+	fi
+fi
+
 #
 # CONSTANTS
 #
-MYSQL_CONN="-h $DBHOST -u $DBUSER -p$DBPASS $DBNAME"
-MYSQL_BATCH="mysql --batch --silent $MYSQL_CONN"
+MYSQL_OPTS=()
+[ ! -z "$CNFFILE" ] && MYSQL_OPTS=("${MYSQL_OPTS[@]}" --defaults-extra-file="$CNFFILE")
+[ ! -z "$DBHOST" ] && MYSQL_OPTS=("${MYSQL_OPTS[@]}" -h $DBHOST)
+[ ! -z "$DBUSER" ] && MYSQL_OPTS=("${MYSQL_OPTS[@]}" -u $DBUSER)
+[ ! -z "$DBPASS" ] && MYSQL_OPTS=("${MYSQL_OPTS[@]}" -p"$DBPASS")
 
+MYSQL_OPTS_BATCH=("${MYSQL_OPTS[@]}" --batch --silent)
+[ ! -z "$DBNAME" ] && MYSQL_OPTS_BATCH=("${MYSQL_OPTS_BATCH[@]}" -D $DBNAME)
+
+# Host name: try reverse lookup if IP is given
 DBHOSTNAME="$DBHOST"
 command -v dig >/dev/null 2>&1
 FIND_DIG=$?
@@ -197,20 +221,20 @@ fi
 #
 # Read table list from database
 [ "$QUIET" == "no" ] && echo "Fetching list of existing tables..."
-DB_TABLES=$($MYSQL_BATCH -e "SELECT table_name FROM information_schema.tables WHERE table_schema = '$DBNAME'" 2>&1)
+DB_TABLES=$(mysql "${MYSQL_OPTS_BATCH[@]}" -e "SELECT table_name FROM information_schema.tables WHERE table_schema = '$DBNAME'" 2>&1)
 if [ $? -ne 0 ]; then echo -e "ERROR while trying to access database:\n$DB_TABLES" 2>&1; exit 1; fi
 DB_TABLES=$(echo "$DB_TABLES" | sort)
 DB_TABLE_NUM=$(echo "$DB_TABLES" | wc -l)
 
 # Query Zabbix database version
 VERSION=""
-DB_VER=$($MYSQL_BATCH -N -e "select optional from dbversion;" 2>&1)
+DB_VER=$(my "${MYSQL_OPTS_BATCH[@]}" -N -e "select optional from dbversion;" 2>&1)
 if [ $? -eq 0 ]; then
-        # version string is like: 02030015
-        re='(.*)([0-9]{2})([0-9]{4})'
-        if [[ $DB_VER =~ $re ]]; then
-                VERSION="_db-${BASH_REMATCH[1]}.$(( ${BASH_REMATCH[2]} + 0 )).$(( ${BASH_REMATCH[3]} + 0 ))"
-        fi
+	# version string is like: 02030015
+	re='(.*)([0-9]{2})([0-9]{4})'
+	if [[ $DB_VER =~ $re ]]; then
+		VERSION="_db-${BASH_REMATCH[1]}.$(( ${BASH_REMATCH[2]} + 0 )).$(( ${BASH_REMATCH[3]} + 0 ))"
+	fi
 fi
 
 # Assemble file name
@@ -234,8 +258,10 @@ while read table; do
 		dump_opt="--extended-insert=FALSE"
 	fi
 
-	mysqldump --routines --opt --single-transaction --skip-lock-tables \
-		$dump_opt $MYSQL_CONN --tables ${table} >> "$DUMPFILE"
+	mysqldump "${MYSQL_OPTS[@]}" \
+		--routines --opt --single-transaction --skip-lock-tables \
+		$dump_opt \
+		$DBNAME --tables ${table} >> "$DUMPFILE"
 
 	if [ "$QUIET" == "no" ]; then
 		# show percentage
