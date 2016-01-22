@@ -24,6 +24,7 @@
 # HISTORY
 #     0.7.2 (2016-01-22)
 #         FIX: Only invoke `dig` if available
+#         ENH: Option -r to rotate backup files (by Daniel Schneller)
 #         ENH: Add database version to filename if available
 #         ENH: Add quiet mode. IP reverse lookup optional (by Daniel Schneller)
 #         ENH: Bash related fixes (by Misu Moldovan)
@@ -68,6 +69,7 @@ DBUSER="zabbix"
 DBPASS=""
 QUIET="no"
 REVERSELOOKUP="yes"
+GENERATIONSTOKEEP=0
 
 #
 # SHOW HELP
@@ -83,7 +85,9 @@ OPTIONS
 	-u user      - MySQL user to access Zabbix database (default: $DBUSER)
 	-p password  - MySQL user password (specify "-" for a prompt)
 	-o outputdir - output directory for MySQL dump
-	               (default: $DUMPDIR) 
+	               (default: $DUMPDIR)
+	-r num       - Rotate backups, keeping up to num generations in the
+	               output directory. Uses filename to match (default: keep all)
 	-q           - No output on succesful backup. For crontab use.
 	-n           - Skip reverse lookup of IP address for host.
 
@@ -98,13 +102,14 @@ fi
 #
 # PARSE COMMAND LINE ARGUMENTS
 #
-while getopts ":h:d:u:p:o:qn" opt; do
+while getopts ":h:d:u:p:o:r:qn" opt; do
 	case $opt in
 		h)  DBHOST="$OPTARG" ;;
 		d)  DBNAME="$OPTARG" ;;
 		u)  DBUSER="$OPTARG" ;;
 		p)  DBPASS="$OPTARG" ;;
 		o)  DUMPDIR="$OPTARG" ;;
+		r)  GENERATIONSTOKEEP=$(printf '%.0f' "$OPTARG") ;;
 		n)  REVERSELOOKUP="no" ;;
 		q)  QUIET="yes" ;;
 		\?) echo "Invalid option: -$OPTARG" >&2; exit 1 ;;
@@ -208,7 +213,9 @@ if [ $? -eq 0 ]; then
         fi
 fi
 
-DUMPFILEBASE="zabbix_${DBHOSTNAME}_$(date +%Y%m%d-%H%M)${VERSION}.sql"
+# Assemble file name
+DUMPFILENAME_PREFIX="zabbix_cfg_${DBHOSTNAME}"
+DUMPFILEBASE="${DUMPFILENAME_PREFIX}_$(date +%Y%m%d-%H%M)${VERSION}.sql"
 DUMPFILE="$DUMPDIR/$DUMPFILEBASE"
 
 PROCESSED_DATA_TABLES=()
@@ -242,7 +249,7 @@ while read table; do
 done <<<"$DB_TABLES" 
 
 #
-# Compress backup file
+# COMPRESS BACKUP
 #
 if [ "$QUIET" == "no" ]; then
 	echo -e "\n"
@@ -259,6 +266,19 @@ if [ $? -ne 0 ]; then
 fi
 
 [ "$QUIET" == "no" ] && echo -e "\nBackup Completed:\n${DUMPFILE}.gz"
+
+#
+# ROTATE OLD BACKUPS
+#
+if [ $GENERATIONSTOKEEP -gt 0 ]; then
+	[ "$QUIET" == "no" ] && echo "Removing old backups, keeping up to $GENERATIONSTOKEEP"
+	REMOVE_OLD_CMD="cd \"$DUMPDIR\" && ls -t \"${DUMPFILENAME_PREFIX}\"* | /usr/bin/awk \"NR>${GENERATIONSTOKEEP}\" | xargs rm -f "
+	eval ${REMOVE_OLD_CMD}
+	if [ $? -ne 0 ]; then
+		echo "ERROR: Could not rotate old backups" >&2
+		exit 1
+	fi
+fi
 
 exit 0
 
