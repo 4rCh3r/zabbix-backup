@@ -4,7 +4,7 @@
 #     zabbix-mysql-dump - Configuration Backup for Zabbix with MySQL
 #
 # SYNOPSIS
-#     This is a MySQL configuration backup script for Zabbix 2.0, 2.2 or 2.4.
+#     This is a MySQL configuration backup script for Zabbix 1.x and 2.x.
 #     It does a full backup of all configuration tables, but only a schema
 #     backup of large data tables.
 #
@@ -82,25 +82,49 @@ USAGE
 	$(basename $BASH_SOURCE) [options]
 	
 OPTIONS
-	-h host      - hostname/IP of MySQL server (default: $DBHOST)
-	-d database  - Zabbix database name (default: $DBNAME)
-	-u user      - MySQL user to access Zabbix database (default: $DBUSER)
-	-p password  - MySQL user password (specify "-" for a prompt)
-	-c file      - Use the given MySQL options file.
-	               Special note for option "database": the first one found in
-				   the file via grep is used for mysqldump!
-	-o outputdir - output directory for MySQL dump.
-	               (default: $DUMPDIR)
-	-r num       - Rotate backups, keeping up to num generations in the
-	               output directory. Uses filename to match (default: keep all)
-	-q           - No output on succesful backup. For crontab use.
-	-n           - Skip reverse lookup of IP address for host.
+	-h HOST
+		Hostname/IP of MySQL server.
+		Default: $DBHOST
+		
+	-d DATABASE
+		Zabbix database name.
+		Default: $DBNAME
 
-EXAMPLE
+	-u USER
+		MySQL user to access Zabbix database.
+		Default: $DBUSER
+		
+	-p PASSWORD
+		MySQL user password (specify "-" for a prompt).
+		Default: no password
+		
+	-o DIR
+		Save Zabbix MySQL dumps to DIR.
+		Default: $DUMPDIR
+		
+	-c FILE
+		Use FILE for MySQL options (passed via --defaults-extra-file).
+		PLEASE NOTE:
+		mysqldump needs the database to be specified via command line.
+		So the first "database" options found in the config file is
+		used for mysqldump.
+		
+	-r NUM
+		Rotate backups while keeping up to NUM generations.
+		Uses filename to match.
+		Default: keep all backups
+	
+	-n
+		Skip reverse lookup of IP address for host.
+		
+	-q
+		Quiet mode: no output except for errors (for batch/crontab use).
+
+EXAMPLES
 	$(basename $BASH_SOURCE) -h 1.2.3.4 -d zabbixdb -u zabbix -p test
-	$(basename $BASH_SOURCE) -d zabbixdb -u zabbix -p - -o /tmp
-	$(basename $BASH_SOURCE) -h 1.2.3.4 -d zabbixdb -c /etc/mysql-backup-credentials.cnf
+	$(basename $BASH_SOURCE) -u zabbix -p - -o /tmp
 	$(basename $BASH_SOURCE) -c /etc/mysql/mysql.cnf
+	$(basename $BASH_SOURCE) -c /etc/mysql/mysql.cnf -d zabbixdb
 
 EOF
 	exit 1
