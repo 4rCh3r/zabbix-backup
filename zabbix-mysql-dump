@@ -22,7 +22,7 @@
 #      - Daniel Schneller (dschneller)
 #
 # HISTORY
-#     0.7.2 (2016-01-22)
+#     0.8.0 (2016-01-22)
 #         FIX: Only invoke `dig` if available
 #         ENH: Option -c to use a MySQL config ("options") file (suggested by Daniel Schneller)
 #         ENH: Option -r to rotate backup files (Daniel Schneller)
