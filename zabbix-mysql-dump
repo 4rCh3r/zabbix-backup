@@ -85,7 +85,7 @@ OPTIONS
 	-h HOST
 		Hostname/IP of MySQL server.
 		Default: $DBHOST
-		
+
 	-d DATABASE
 		Zabbix database name.
 		Default: $DBNAME
@@ -93,30 +93,30 @@ OPTIONS
 	-u USER
 		MySQL user to access Zabbix database.
 		Default: $DBUSER
-		
+
 	-p PASSWORD
 		MySQL user password (specify "-" for a prompt).
 		Default: no password
-		
+
 	-o DIR
 		Save Zabbix MySQL dumps to DIR.
 		Default: $DUMPDIR
-		
+
 	-c FILE
 		Use FILE for MySQL options (passed via --defaults-extra-file).
 		PLEASE NOTE:
 		mysqldump needs the database to be specified via command line.
 		So the first "database" options found in the config file is
 		used for mysqldump.
-		
+
 	-r NUM
 		Rotate backups while keeping up to NUM generations.
 		Uses filename to match.
 		Default: keep all backups
-	
+
 	-n
 		Skip reverse lookup of IP address for host.
-		
+
 	-q
 		Quiet mode: no output except for errors (for batch/crontab use).
 
@@ -133,10 +133,11 @@ fi
 #
 # PARSE COMMAND LINE ARGUMENTS
 #
+DB_GIVEN=0
 while getopts ":h:d:u:p:o:r:c:qn" opt; do
 	case $opt in
 		h)  DBHOST="$OPTARG" ;;
-		d)  DBNAME="$OPTARG" ;;
+		d)  DBNAME="$OPTARG"; DB_GIVEN=1 ;;
 		u)  DBUSER="$OPTARG" ;;
 		p)  DBPASS="$OPTARG" ;;
 		c)  CNFFILE="$OPTARG" ;;
@@ -164,7 +165,7 @@ if [ ! -z "$CNFFILE" ]; then
 	# Database name needs special treatment:
 	# For mysqldump it has to be specified on the command line!
 	# Therefore we need to get it from the config file
-	if [ -z "$DBNAME" ]; then
+	if [ $DB_GIVEN -eq 0 ]; then
 		DBNAME=$(grep -m 1 ^database= "$CNFFILE" | cut -d= -f2)
 	fi
 fi
@@ -204,6 +205,7 @@ if [ "$QUIET" == "no" ]; then
 
 	EOF
 fi
+
 #
 # FUNCTIONS
 #
