@@ -127,7 +127,8 @@ MYSQL_BATCH="mysql --batch --silent $MYSQL_CONN"
 
 DBHOSTNAME="$DBHOST"
 command -v dig >/dev/null 2>&1
-if [ "$REVERSELOOKUP" == "yes" ]; then
+FIND_DIG=$?
+if [ "$REVERSELOOKUP" == "yes" -a $FIND_DIG -eq 0 ]; then
 	# Try resolving a given host ip
 	newHostname=$(dig +noall +answer -x $DBHOST | sed -r 's/((\S+)\s+)+([^\.]+)\..*/\3/')
 	test \! -z "$newHostname" && DBHOSTNAME="$newHostname"
