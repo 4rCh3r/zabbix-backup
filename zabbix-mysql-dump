@@ -255,7 +255,7 @@ DB_TABLE_NUM=$(echo "$DB_TABLES" | wc -l)
 
 # Query Zabbix database version
 VERSION=""
-DB_VER=$(mysql "${MYSQL_OPTS_BATCH[@]}" -N -e "select optional from dbversion;" 2>&1)
+DB_VER=$(mysql "${MYSQL_OPTS_BATCH[@]}" -N -e "select optional from dbversion;" 2>/dev/null)
 if [ $? -eq 0 ]; then
 	# version string is like: 02030015
 	re='(.*)([0-9]{2})([0-9]{4})'
