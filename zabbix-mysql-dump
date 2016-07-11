@@ -20,8 +20,12 @@
 #      - Andreas Niedermann (dre-)
 #      - Mișu Moldovan (dumol)
 #      - Daniel Schneller (dschneller)
+#      - Ruslan Ohitin (ruslan-ohitin)
 #
 # HISTORY
+#     0.8.1 (2016-07-11)
+#         ENH: Added Zabbix 3.0.x tables to list (added & tested by Ruslan Ohitin)
+#         
 #     0.8.0 (2016-01-22)
 #         FIX: Only invoke `dig` if available
 #         ENH: Option -c to use a MySQL config ("options") file (suggested by Daniel Schneller)
@@ -343,129 +347,129 @@ exit 0
 #
 
 __DATA__
-acknowledges               1.3.1    - 3.0.0  DATA
-actions                    1.3.1    - 3.0.0
-alerts                     1.3.1    - 3.0.0  DATA
-application_discovery      3.0.0    - 3.0.0
-application_prototype      3.0.0    - 3.0.0
-application_template       2.1.0    - 3.0.0
-applications               1.3.1    - 3.0.0
-auditlog                   1.3.1    - 3.0.0  DATA
-auditlog_details           1.7      - 3.0.0  DATA
+acknowledges               1.3.1    - 3.0.3  DATA
+actions                    1.3.1    - 3.0.3
+alerts                     1.3.1    - 3.0.3  DATA
+application_discovery      2.5.0    - 3.0.3
+application_prototype      2.5.0    - 3.0.3
+application_template       2.1.0    - 3.0.3
+applications               1.3.1    - 3.0.3
+auditlog                   1.3.1    - 3.0.3  DATA
+auditlog_details           1.7      - 3.0.3  DATA
 autoreg                    1.3.1    - 1.3.4
-autoreg_host               1.7      - 3.0.0
-conditions                 1.3.1    - 3.0.0
-config                     1.3.1    - 3.0.0
-dbversion                  2.1.0    - 3.0.0
-dchecks                    1.3.4    - 3.0.0
-dhosts                     1.3.4    - 3.0.0
-drules                     1.3.4    - 3.0.0
-dservices                  1.3.4    - 3.0.0
-escalations                1.5.3    - 3.0.0
-events                     1.3.1    - 3.0.0  DATA
-expressions                1.7      - 3.0.0
-functions                  1.3.1    - 3.0.0
-globalmacro                1.7      - 3.0.0
-globalvars                 1.9.6    - 3.0.0
-graph_discovery            1.9.0    - 3.0.0
-graph_theme                1.7      - 3.0.0
-graphs                     1.3.1    - 3.0.0
-graphs_items               1.3.1    - 3.0.0
-group_discovery            2.1.4    - 3.0.0
-group_prototype            2.1.4    - 3.0.0
-groups                     1.3.1    - 3.0.0
+autoreg_host               1.7      - 3.0.3
+conditions                 1.3.1    - 3.0.3
+config                     1.3.1    - 3.0.3
+dbversion                  2.1.0    - 3.0.3
+dchecks                    1.3.4    - 3.0.3
+dhosts                     1.3.4    - 3.0.3
+drules                     1.3.4    - 3.0.3
+dservices                  1.3.4    - 3.0.3
+escalations                1.5.3    - 3.0.3
+events                     1.3.1    - 3.0.3  DATA
+expressions                1.7      - 3.0.3
+functions                  1.3.1    - 3.0.3
+globalmacro                1.7      - 3.0.3
+globalvars                 1.9.6    - 3.0.3
+graph_discovery            1.9.0    - 3.0.3
+graph_theme                1.7      - 3.0.3
+graphs                     1.3.1    - 3.0.3
+graphs_items               1.3.1    - 3.0.3
+group_discovery            2.1.4    - 3.0.3
+group_prototype            2.1.4    - 3.0.3
+groups                     1.3.1    - 3.0.3
 help_items                 1.3.1    - 2.1.8
-history                    1.3.1    - 3.0.0  DATA
-history_log                1.3.1    - 3.0.0  DATA
-history_str                1.3.1    - 3.0.0  DATA
-history_str_sync           1.3.1    - 2.2.6  DATA
-history_sync               1.3.1    - 2.2.6  DATA
-history_text               1.3.1    - 3.0.0  DATA
-history_uint               1.3.1    - 3.0.0  DATA
-history_uint_sync          1.3.1    - 2.2.6  DATA
-host_discovery             2.1.4    - 3.0.0
-host_inventory             1.9.6    - 3.0.0
+history                    1.3.1    - 3.0.3  DATA
+history_log                1.3.1    - 3.0.3  DATA
+history_str                1.3.1    - 3.0.3  DATA
+history_str_sync           1.3.1    - 2.2.13 DATA
+history_sync               1.3.1    - 2.2.13 DATA
+history_text               1.3.1    - 3.0.3  DATA
+history_uint               1.3.1    - 3.0.3  DATA
+history_uint_sync          1.3.1    - 2.2.13 DATA
+host_discovery             2.1.4    - 3.0.3
+host_inventory             1.9.6    - 3.0.3
 host_profile               1.9.3    - 1.9.5
-hostmacro                  1.7      - 3.0.0
-hosts                      1.3.1    - 3.0.0
-hosts_groups               1.3.1    - 3.0.0
+hostmacro                  1.7      - 3.0.3
+hosts                      1.3.1    - 3.0.3
+hosts_groups               1.3.1    - 3.0.3
 hosts_profiles             1.3.1    - 1.9.2
 hosts_profiles_ext         1.6      - 1.9.2
-hosts_templates            1.3.1    - 3.0.0
-housekeeper                1.3.1    - 3.0.0
-httpstep                   1.3.3    - 3.0.0
-httpstepitem               1.3.3    - 3.0.0
-httptest                   1.3.3    - 3.0.0
-httptestitem               1.3.3    - 3.0.0
-icon_map                   1.9.6    - 3.0.0
-icon_mapping               1.9.6    - 3.0.0
-ids                        1.3.3    - 3.0.0
-images                     1.3.1    - 3.0.0
-interface                  1.9.1    - 3.0.0
-interface_discovery        2.1.4    - 3.0.0
-item_application_prototype 3.0.0    - 3.0.0
-item_condition             2.3.0    - 3.0.0
-item_discovery             1.9.0    - 3.0.0
-items                      1.3.1    - 3.0.0
-items_applications         1.3.1    - 3.0.0
-maintenances               1.7      - 3.0.0
-maintenances_groups        1.7      - 3.0.0
-maintenances_hosts         1.7      - 3.0.0
-maintenances_windows       1.7      - 3.0.0
-mappings                   1.3.1    - 3.0.0
-media                      1.3.1    - 3.0.0
-media_type                 1.3.1    - 3.0.0
-node_cksum                 1.3.1    - 2.2.6
+hosts_templates            1.3.1    - 3.0.3
+housekeeper                1.3.1    - 3.0.3
+httpstep                   1.3.3    - 3.0.3
+httpstepitem               1.3.3    - 3.0.3
+httptest                   1.3.3    - 3.0.3
+httptestitem               1.3.3    - 3.0.3
+icon_map                   1.9.6    - 3.0.3
+icon_mapping               1.9.6    - 3.0.3
+ids                        1.3.3    - 3.0.3
+images                     1.3.1    - 3.0.3
+interface                  1.9.1    - 3.0.3
+interface_discovery        2.1.4    - 3.0.3
+item_application_prototype 2.5.0    - 3.0.3
+item_condition             2.3.0    - 3.0.3
+item_discovery             1.9.0    - 3.0.3
+items                      1.3.1    - 3.0.3
+items_applications         1.3.1    - 3.0.3
+maintenances               1.7      - 3.0.3
+maintenances_groups        1.7      - 3.0.3
+maintenances_hosts         1.7      - 3.0.3
+maintenances_windows       1.7      - 3.0.3
+mappings                   1.3.1    - 3.0.3
+media                      1.3.1    - 3.0.3
+media_type                 1.3.1    - 3.0.3
+node_cksum                 1.3.1    - 2.2.13
 node_configlog             1.3.1    - 1.4.7
-nodes                      1.3.1    - 2.2.6
-opcommand                  1.9.4    - 3.0.0
-opcommand_grp              1.9.2    - 3.0.0
-opcommand_hst              1.9.2    - 3.0.0
-opconditions               1.5.3    - 3.0.0
-operations                 1.3.4    - 3.0.0
-opgroup                    1.9.2    - 3.0.0
-opmediatypes               1.7      - 1.8.21
-opinventory                3.0.0    - 3.0.0
-opmessage                  1.9.2    - 3.0.0
-opmessage_grp              1.9.2    - 3.0.0
-opmessage_usr              1.9.2    - 3.0.0
-optemplate                 1.9.2    - 3.0.0
-profiles                   1.3.1    - 3.0.0
-proxy_autoreg_host         1.7      - 3.0.0
-proxy_dhistory             1.5      - 3.0.0
-proxy_history              1.5.1    - 3.0.0
-regexps                    1.7      - 3.0.0
-rights                     1.3.1    - 3.0.0
-screen_user                3.0.0    - 3.0.0
-screen_usrgrp              3.0.0    - 3.0.0
-screens                    1.3.1    - 3.0.0
-screens_items              1.3.1    - 3.0.0
-scripts                    1.5      - 3.0.0
-service_alarms             1.3.1    - 3.0.0
-services                   1.3.1    - 3.0.0
-services_links             1.3.1    - 3.0.0
-services_times             1.3.1    - 3.0.0
-sessions                   1.3.1    - 3.0.0
-slides                     1.3.4    - 3.0.0
-slideshow_user             3.0.0    - 3.0.0
-slideshow_usrgrp           3.0.0    - 3.0.0
-slideshows                 1.3.4    - 3.0.0
-sysmap_element_url         1.9.0    - 3.0.0
-sysmap_url                 1.9.0    - 3.0.0
-sysmap_user                3.0.0    - 3.0.0
-sysmap_usrgrp              3.0.0    - 3.0.0
-sysmaps                    1.3.1    - 3.0.0
-sysmaps_elements           1.3.1    - 3.0.0
-sysmaps_link_triggers      1.5      - 3.0.0
-sysmaps_links              1.3.1    - 3.0.0
-timeperiods                1.7      - 3.0.0
-trends                     1.3.1    - 3.0.0  DATA
-trends_uint                1.5      - 3.0.0  DATA
-trigger_depends            1.3.1    - 3.0.0
-trigger_discovery          1.9.0    - 3.0.0
-triggers                   1.3.1    - 3.0.0
-user_history               1.7      - 2.4.0
-users                      1.3.1    - 3.0.0
-users_groups               1.3.1    - 3.0.0
-usrgrp                     1.3.1    - 3.0.0
-valuemaps                  1.3.1    - 3.0.0
+nodes                      1.3.1    - 2.2.13
+opcommand                  1.9.4    - 3.0.3
+opcommand_grp              1.9.2    - 3.0.3
+opcommand_hst              1.9.2    - 3.0.3
+opconditions               1.5.3    - 3.0.3
+operations                 1.3.4    - 3.0.3
+opgroup                    1.9.2    - 3.0.3
+opinventory                3.0.0    - 3.0.3
+opmediatypes               1.7      - 1.8.22
+opmessage                  1.9.2    - 3.0.3
+opmessage_grp              1.9.2    - 3.0.3
+opmessage_usr              1.9.2    - 3.0.3
+optemplate                 1.9.2    - 3.0.3
+profiles                   1.3.1    - 3.0.3
+proxy_autoreg_host         1.7      - 3.0.3
+proxy_dhistory             1.5      - 3.0.3
+proxy_history              1.5.1    - 3.0.3
+regexps                    1.7      - 3.0.3
+rights                     1.3.1    - 3.0.3
+screen_user                3.0.0    - 3.0.3
+screen_usrgrp              3.0.0    - 3.0.3
+screens                    1.3.1    - 3.0.3
+screens_items              1.3.1    - 3.0.3
+scripts                    1.5      - 3.0.3
+service_alarms             1.3.1    - 3.0.3
+services                   1.3.1    - 3.0.3
+services_links             1.3.1    - 3.0.3
+services_times             1.3.1    - 3.0.3
+sessions                   1.3.1    - 3.0.3
+slides                     1.3.4    - 3.0.3
+slideshow_user             3.0.0    - 3.0.3
+slideshow_usrgrp           3.0.0    - 3.0.3
+slideshows                 1.3.4    - 3.0.3
+sysmap_element_url         1.9.0    - 3.0.3
+sysmap_url                 1.9.0    - 3.0.3
+sysmap_user                3.0.0    - 3.0.3
+sysmap_usrgrp              3.0.0    - 3.0.3
+sysmaps                    1.3.1    - 3.0.3
+sysmaps_elements           1.3.1    - 3.0.3
+sysmaps_link_triggers      1.5      - 3.0.3
+sysmaps_links              1.3.1    - 3.0.3
+timeperiods                1.7      - 3.0.3
+trends                     1.3.1    - 3.0.3  DATA
+trends_uint                1.5      - 3.0.3  DATA
+trigger_depends            1.3.1    - 3.0.3
+trigger_discovery          1.9.0    - 3.0.3
+triggers                   1.3.1    - 3.0.3
+user_history               1.7      - 2.4.8
+users                      1.3.1    - 3.0.3
+users_groups               1.3.1    - 3.0.3
+usrgrp                     1.3.1    - 3.0.3
+valuemaps                  1.3.1    - 3.0.3
