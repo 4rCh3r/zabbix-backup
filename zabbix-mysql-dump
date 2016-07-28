@@ -25,7 +25,7 @@
 # HISTORY
 #     0.8.1 (2016-07-11)
 #         ENH: Added Zabbix 3.0.x tables to list (added & tested by Ruslan Ohitin)
-#         
+#
 #     0.8.0 (2016-01-22)
 #         FIX: Only invoke `dig` if available
 #         ENH: Option -c to use a MySQL config ("options") file (suggested by Daniel Schneller)
@@ -39,7 +39,7 @@
 #         NEW: Parsing of commandline arguments implemented
 #         ENH: Try reverse lookup of IPs and include hostname/IP in filename
 #         REV: Stop if database password is wrong
-# 
+#
 #     0.7.0 (2014-10-02)
 #         ENH: Complete overhaul to make script work with lots of Zabbix versions
 #
@@ -67,7 +67,7 @@
 
 #
 # DEFAULT VALUES
-# 
+#
 # DO NOT EDIT THESE VALUES!
 # Instead, use command line parameters or a config file to specify options.
 #
@@ -76,6 +76,7 @@ DBHOST="127.0.0.1"
 DBNAME="zabbix"
 DBUSER="zabbix"
 DBPASS=""
+XZ="no"
 QUIET="no"
 REVERSELOOKUP="yes"
 GENERATIONSTOKEEP=0
@@ -87,7 +88,7 @@ if [ -z "$1" ]; then
 	cat <<EOF
 USAGE
 	$(basename $BASH_SOURCE) [options]
-	
+
 OPTIONS
 	-h HOST
 		Hostname/IP of MySQL server.
@@ -121,6 +122,13 @@ OPTIONS
 		Uses filename to match.
 		Default: keep all backups
 
+	-x
+		Compress using xz instead of gz
+		PLEASE NOTE:
+		xz compression will take much longer and consume more CPU time
+		but the resulting backup will be about half the size of the same
+		sql file compressed using gz. Your mileage may vary.
+
 	-n
 		Skip reverse lookup of IP address for host.
 
@@ -135,13 +143,13 @@ EXAMPLES
 
 EOF
 	exit 1
-fi	
+fi
 
 #
 # PARSE COMMAND LINE ARGUMENTS
 #
 DB_GIVEN=0
-while getopts ":h:d:u:p:o:r:c:qn" opt; do
+while getopts ":h:d:u:p:o:r:c:xqn" opt; do
 	case $opt in
 		h)  DBHOST="$OPTARG" ;;
 		d)  DBNAME="$OPTARG"; DB_GIVEN=1 ;;
@@ -150,6 +158,7 @@ while getopts ":h:d:u:p:o:r:c:qn" opt; do
 		c)  CNFFILE="$OPTARG" ;;
 		o)  DUMPDIR="$OPTARG" ;;
 		r)  GENERATIONSTOKEEP=$(printf '%.0f' "$OPTARG") ;;
+		x)  XZ="yes" ;;
 		n)  REVERSELOOKUP="no" ;;
 		q)  QUIET="yes" ;;
 		\?) echo "Invalid option: -$OPTARG" >&2; exit 1 ;;
@@ -235,7 +244,7 @@ fi
 
 #
 # READ TABLE LIST from __DATA__ section at the end of this script
-# (http://stackoverflow.com/a/3477269/2983301) 
+# (http://stackoverflow.com/a/3477269/2983301)
 #
 DATA_TABLES=()
 while read line; do
@@ -306,7 +315,7 @@ while read table; do
 			if [ $(($i_percent % 2)) -eq 0 ]; then echo -n "."; fi
 		fi
 	fi
-done <<<"$DB_TABLES" 
+done <<<"$DB_TABLES"
 
 #
 # COMPRESS BACKUP
@@ -315,17 +324,27 @@ if [ "$QUIET" == "no" ]; then
 	echo -e "\n"
 	echo "For the following large tables only the schema (without data) was stored:"
 	for table in "${PROCESSED_DATA_TABLES[@]}"; do echo " - $table"; done
-	
-	echo 
+
+	echo
 	echo "Compressing backup file..."
 fi
-gzip -f "$DUMPFILE"
-if [ $? -ne 0 ]; then
-	echo -e "\nERROR: Could not compress backup file, see previous messages" >&2
+if [ "$XZ" == "no" ]; then
+	gzip -f "$DUMPFILE"
+	if [ $? -ne 0 ]; then
+		echo -e "\nERROR: Could not compress backup file, see previous messages" >&2
+		exit 1
+	fi
+fi
+if [ "$XZ" == "yes" ]; then
+	xz "$DUMPFILE"
+	if [ $? -ne 0 ]; then
+		echo -e "\nERROR: Could not compress backup file, see previous messages" >&2
 	exit 1
+	fi
 fi
 
-[ "$QUIET" == "no" ] && echo -e "\nBackup Completed:\n${DUMPFILE}.gz"
+[ "$QUIET" == "no" ] && [ "$XZ" == "no" ] && echo -e "\nBackup Completed:\n${DUMPFILE}.gz"
+[ "$QUIET" == "no" ] && [ "$XZ" == "yes" ] && echo -e "\nBackup Completed:\n${DUMPFILE}.xz"
 
 #
 # ROTATE OLD BACKUPS
