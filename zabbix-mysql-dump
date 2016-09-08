@@ -43,6 +43,7 @@ DBHOST="127.0.0.1"
 DBNAME="zabbix"
 DBUSER="zabbix"
 DBPASS=""
+XZ="no"
 QUIET="no"
 REVERSELOOKUP="yes"
 GENERATIONSTOKEEP=0
@@ -88,6 +89,13 @@ OPTIONS
 		Uses filename to match.
 		Default: keep all backups
 
+	-x
+		Compress using xz instead of gz
+		PLEASE NOTE:
+		xz compression will take much longer and consume more CPU time
+		but the resulting backup will be about half the size of the same
+		sql file compressed using gz. Your mileage may vary.
+
 	-n
 		Skip reverse lookup of IP address for host.
 
@@ -108,7 +116,7 @@ fi
 # PARSE COMMAND LINE ARGUMENTS
 #
 DB_GIVEN=0
-while getopts ":h:d:u:p:o:r:c:qn" opt; do
+while getopts ":h:d:u:p:o:r:c:xqn" opt; do
 	case $opt in
 		h)  DBHOST="$OPTARG" ;;
 		d)  DBNAME="$OPTARG"; DB_GIVEN=1 ;;
@@ -117,6 +125,7 @@ while getopts ":h:d:u:p:o:r:c:qn" opt; do
 		c)  CNFFILE="$OPTARG" ;;
 		o)  DUMPDIR="$OPTARG" ;;
 		r)  GENERATIONSTOKEEP=$(printf '%.0f' "$OPTARG") ;;
+		x)  XZ="yes" ;;
 		n)  REVERSELOOKUP="no" ;;
 		q)  QUIET="yes" ;;
 		\?) echo "Invalid option: -$OPTARG" >&2; exit 1 ;;
@@ -293,13 +302,23 @@ if [ "$QUIET" == "no" ]; then
 	echo
 	echo "Compressing backup file..."
 fi
-gzip -f "$DUMPFILE"
-if [ $? -ne 0 ]; then
-	echo -e "\nERROR: Could not compress backup file, see previous messages" >&2
+if [ "$XZ" == "no" ]; then
+	gzip -f "$DUMPFILE"
+	if [ $? -ne 0 ]; then
+		echo -e "\nERROR: Could not compress backup file, see previous messages" >&2
+		exit 1
+	fi
+fi
+if [ "$XZ" == "yes" ]; then
+	xz "$DUMPFILE"
+	if [ $? -ne 0 ]; then
+		echo -e "\nERROR: Could not compress backup file, see previous messages" >&2
 	exit 1
+	fi
 fi
 
-[ "$QUIET" == "no" ] && echo -e "\nBackup Completed:\n${DUMPFILE}.gz"
+[ "$QUIET" == "no" ] && [ "$XZ" == "no" ] && echo -e "\nBackup Completed:\n${DUMPFILE}.gz"
+[ "$QUIET" == "no" ] && [ "$XZ" == "yes" ] && echo -e "\nBackup Completed:\n${DUMPFILE}.xz"
 
 #
 # ROTATE OLD BACKUPS
