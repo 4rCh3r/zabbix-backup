@@ -1,0 +1,56 @@
+# About this script
+
+## Short description
+
+This is a MySQL database backup script for all Zabbix versions from 1.3.1 up to 3.0.3.
+
+For more informations, see the Wiki (https://github.com/maxhq/zabbix-backup/wiki).
+
+## Version history
+
+**0.8.2 (2016-09-08)**
+
+- FIX: Evil space was masking end of here-document (fixed in #8 by @msjmeyer)
+
+**0.8.1 (2016-07-11)**
+
+- ENH: Added Zabbix 3.0.x tables to list (added & tested by Ruslan Ohitin)
+
+**0.8.0 (2016-01-22)**
+
+- FIX: Only invoke `dig` if available
+- ENH: Option -c to use a MySQL config ("options") file (suggested by Daniel Schneller)
+- ENH: Option -r to rotate backup files (Daniel Schneller)
+- ENH: Add database version to filename if available
+- ENH: Add quiet mode. IP reverse lookup optional (Daniel Schneller)
+- ENH: Bash related fixes (Misu Moldovan)
+- CHG: Default output directory is now $PWD instead of script dir
+
+**0.7.1 (2015-01-27)**
+
+- NEW: Parsing of commandline arguments implemented
+- ENH: Try reverse lookup of IPs and include hostname/IP in filename
+- REV: Stop if database password is wrong
+
+**0.7.0 (2014-10-02)**
+
+- ENH: Complete overhaul to make script work with lots of Zabbix versions
+
+**0.6.0 (2014-09-15)**
+
+- REV: Updated the table list for use with zabbix v2.2.3
+
+**0.5.0 (2013-05-13)**
+
+- NEW: Added table list comparison between database and script
+
+**0.4.0 (2012-03-02)**
+
+- REV: Incorporated mysqldump options (suggested by Jonathan Bayer)
+
+**0.3.0 (2012-02-06)**
+
+- ENH: Backup of Zabbix 1.9.x / 2.0.0, removed unnecessary use of
+  variables (DATEBIN etc) for commands that use to be in $PATH
+
+**0.2.0 (2011-11-05)**

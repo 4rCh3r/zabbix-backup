@@ -2,8 +2,7 @@
 
 ### Before commit
 
-* Update history in script itself
-* Update README
+* Update README.md
 
 ### After commit
 
