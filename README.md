@@ -1,10 +1,8 @@
-# About this script
+# Zabbix MySQL backup
 
-## Short description
+This is a MySQL database backup script for the [Zabbix](http://www.zabbix.com/) monitoring software from version 1.3.1 up to 3.0.3.
 
-This is a MySQL database backup script for all Zabbix versions from 1.3.1 up to 3.0.3.
-
-For more informations, see the Wiki (https://github.com/maxhq/zabbix-backup/wiki).
+For more informations, see the [Project Wiki](https://github.com/maxhq/zabbix-backup/wiki).
 
 ## Version history
 
