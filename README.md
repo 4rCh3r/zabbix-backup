@@ -10,7 +10,10 @@ For more informations, see the Wiki (https://github.com/maxhq/zabbix-backup/wiki
 
 **0.8.2 (2016-09-08)**
 
+- NEW: Option -x to use XZ instead of GZ for compression
+- NEW: Option -0 for "no compression"
 - FIX: Evil space was masking end of here-document (fixed in #8 by @msjmeyer)
+- FIX: Prevent "Warning: Using a password on the command line interface can be insecure."
 
 **0.8.1 (2016-07-11)**
 
