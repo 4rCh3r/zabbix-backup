@@ -43,7 +43,7 @@ DBHOST="127.0.0.1"
 DBNAME="zabbix"
 DBUSER="zabbix"
 DBPASS=""
-XZ="no"
+COMPRESSION="gz"
 QUIET="no"
 REVERSELOOKUP="yes"
 GENERATIONSTOKEEP=0
@@ -96,6 +96,9 @@ OPTIONS
 		but the resulting backup will be about half the size of the same
 		sql file compressed using gz. Your mileage may vary.
 
+	-0
+		Do not compress the sql dump
+
 	-n
 		Skip reverse lookup of IP address for host.
 
@@ -116,7 +119,7 @@ fi
 # PARSE COMMAND LINE ARGUMENTS
 #
 DB_GIVEN=0
-while getopts ":h:d:u:p:o:r:c:xqn" opt; do
+while getopts ":h:d:u:p:o:r:c:x0qn" opt; do
 	case $opt in
 		h)  DBHOST="$OPTARG" ;;
 		d)  DBNAME="$OPTARG"; DB_GIVEN=1 ;;
@@ -125,7 +128,8 @@ while getopts ":h:d:u:p:o:r:c:xqn" opt; do
 		c)  CNFFILE="$OPTARG" ;;
 		o)  DUMPDIR="$OPTARG" ;;
 		r)  GENERATIONSTOKEEP=$(printf '%.0f' "$OPTARG") ;;
-		x)  XZ="yes" ;;
+		x)  COMPRESSION="xz" ;;
+		0)  COMPRESSION="" ;;
 		n)  REVERSELOOKUP="no" ;;
 		q)  QUIET="yes" ;;
 		\?) echo "Invalid option: -$OPTARG" >&2; exit 1 ;;
@@ -156,6 +160,8 @@ fi
 #
 # CONSTANTS
 #
+SUFFIX=""; test ! -z $COMPRESSION && SUFFIX=".${COMPRESSION}"
+
 MYSQL_OPTS=()
 [ ! -z "$CNFFILE" ] && MYSQL_OPTS=("${MYSQL_OPTS[@]}" --defaults-extra-file="$CNFFILE")
 [ ! -z "$DBHOST" ] && MYSQL_OPTS=("${MYSQL_OPTS[@]}" -h $DBHOST)
@@ -302,23 +308,16 @@ if [ "$QUIET" == "no" ]; then
 	echo
 	echo "Compressing backup file..."
 fi
-if [ "$XZ" == "no" ]; then
-	gzip -f "$DUMPFILE"
-	if [ $? -ne 0 ]; then
-		echo -e "\nERROR: Could not compress backup file, see previous messages" >&2
-		exit 1
-	fi
-fi
-if [ "$XZ" == "yes" ]; then
-	xz "$DUMPFILE"
-	if [ $? -ne 0 ]; then
-		echo -e "\nERROR: Could not compress backup file, see previous messages" >&2
+
+EXITCODE=0
+if [ "$COMPRESSION" == "gz" ]; then gzip -f "$DUMPFILE"; EXITCODE=$?; fi
+if [ "$COMPRESSION" == "xz" ]; then xz   -f "$DUMPFILE"; EXITCODE=$?; fi
+if [ $EXITCODE -ne 0 ]; then
+	echo -e "\nERROR: Could not compress backup file, see previous messages" >&2
 	exit 1
-	fi
 fi
 
-[ "$QUIET" == "no" ] && [ "$XZ" == "no" ] && echo -e "\nBackup Completed:\n${DUMPFILE}.gz"
-[ "$QUIET" == "no" ] && [ "$XZ" == "yes" ] && echo -e "\nBackup Completed:\n${DUMPFILE}.xz"
+[ "$QUIET" == "no" ] && echo -e "\nBackup Completed:\n${DUMPFILE}${SUFFIX}"
 
 #
 # ROTATE OLD BACKUPS
