@@ -46,7 +46,6 @@ DBHOST="127.0.0.1"
 DBNAME="zabbix"
 DBUSER="zabbix"
 DBPASS=""
-DBPORT="5432"
 COMPRESSION="gz"
 QUIET="no"
 REVERSELOOKUP="yes"
@@ -70,8 +69,12 @@ OPTIONS
 		Default: $DBHOST
 
 	-d DATABASE
-		Zabbix database name.
+		/Zabbix database name.
 		Default: $DBNAME
+ 
+	-P DBPORT
+		Zabbix database port.
+		Default: $DBPORT
 
 	-u USER
 		User to access Zabbix database.
@@ -127,12 +130,13 @@ fi
 # PARSE COMMAND LINE ARGUMENTS
 #
 DB_GIVEN=0
-while getopts ":t:h:d:u:p:o:r:c:x0qn" opt; do
+while getopts ":t:h:d:u:p:P:o:r:c:x0qn" opt; do
 	case $opt in
         t)  DBTYPE="$OPTARG" ;;
         h)  DBHOST="$OPTARG" ;;
         d)  DBNAME="$OPTARG"; DB_GIVEN=1 ;;
         u)  DBUSER="$OPTARG" ;;
+        P)  DBPORT="$OPTARG" ;;
         p)  DBPASS="$OPTARG" ;;
         c)  CNFFILE="$OPTARG" ;;
         o)  DUMPDIR="$OPTARG" ;;
@@ -178,14 +182,17 @@ case $DBTYPE in
         [ ! -z "$CNFFILE" ] && DB_OPTS=("${DB_OPTS[@]}" --defaults-extra-file="$CNFFILE")
         [ ! -z "$DBUSER" ] && DB_OPTS=("${DB_OPTS[@]}" -u $DBUSER)
         [ ! -z "$DBPASS" ] && DB_OPTS=("${DB_OPTS[@]}" -p"$DBPASS")
-
+        [ -z "$DBPORT" ] && DBPORT="3306"
+        DB_OPTS=("${DB_OPTS[@]}" -P"$DBPORT")
         DB_OPTS_BATCH=("${DB_OPTS[@]}" --batch --silent)
         [ ! -z "$DBNAME" ] && DB_OPTS_BATCH=("${DB_OPTS_BATCH[@]}" -D $DBNAME)
         ;;
     psql)
         [ ! -z "$DBUSER" ] && DB_OPTS=("${DB_OPTS[@]}" -U $DBUSER)
+        [ -z "$DBPORT" ] && DBPORT="5432"
+		DB_OPTS=("${DB_OPTS[@]}" -p"$DBPORT")       
         if [ ! -z "$DBPASS" ]; then
-           PGPASSFILE=$(mktemp -u)
+           export PGPASSFILE=$(mktemp -u)
            echo "$DBHOST:$DBPORT:$DBNAME:$DBUSER:$DBPASS" > $PGPASSFILE
            chmod 600 $PGPASSFILE
         fi
@@ -248,7 +255,7 @@ check_binary() {
 }
 clean_psql_pass() {
     if [ $DBTYPE = "psql" -a -n "$PGPASSFILE" ]; then
-       rm -f $PGPASSFILE
+       echo rm -f $PGPASSFILE
     fi
 }
 #
