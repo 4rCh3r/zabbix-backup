@@ -126,13 +126,13 @@ fi
 # PARSE COMMAND LINE ARGUMENTS
 #
 DB_GIVEN=0
-while getopts ":h:d:u:p:o:r:c:x0qn" opt; do
+while getopts ":h:d:u:z:s:p:o:r:c:x0qn" opt; do
 	case $opt in
-		h)  DBHOST="$OPTARG" ;;
-		s)  DBSOCKET="$OPTARG" ;;
-		d)  DBNAME="$OPTARG"; DB_GIVEN=1 ;;
-		u)  DBUSER="$OPTARG" ;;
-		p)  DBPASS="$OPTARG" ;;
+		h)  ODBHOST="$OPTARG" ;;
+		s)  ODBSOCKET="$OPTARG" ;;
+		d)  ODBNAME="$OPTARG"; DB_GIVEN=1 ;;
+		u)  ODBUSER="$OPTARG" ;;
+		p)  ODBPASS="$OPTARG" ;;
 		c)  CNFFILE="$OPTARG" ;;
 		o)  DUMPDIR="$OPTARG" ;;
 		z)  ZBXCONFIG="$OPTARG" ;;
@@ -154,6 +154,12 @@ if [[ -f ${ZBXCONFIG} && -r ${ZBXCONFIG} ]]; then
 	DBUSER=$DBUser
 	DBPASS=$DBPassword
 fi
+
+[ ! -z "$ODBHOST" ] && DBHOST=$ODBHOST
+[ ! -z "$ODSOCKET" ] && DBHOST=$ODBSOCKET
+[ ! -z "$ODBNAME" ] && DBHOST=$ODBNAME
+[ ! -z "$ODBUSER" ] && DBHOST=$ODBUSER
+[ ! -z "$ODBPASS" ] && DBHOST=$ODBPASS
 
 # Password prompt
 if [ "$DBPASS" = "-" ]; then
@@ -197,7 +203,7 @@ ERRORLOG=$(mktemp)
 DBHOSTNAME="$DBHOST"
 command -v dig >/dev/null 2>&1
 FIND_DIG=$?
-if [ "$REVERSELOOKUP" == "yes" -a $FIND_DIG -eq 0 ]; then
+if [ "$REVERSELOOKUP" == "yes" -a $FIND_DIG -eq 0 -a -z "$DBHOST" ]; then
 	# Try resolving a given host ip
 	newHostname=$(dig +noall +answer -x $DBHOST | sed -r 's/((\S+)\s+)+([^\.]+)\..*/\3/')
 	test \! -z "$newHostname" && DBHOSTNAME="$newHostname"
