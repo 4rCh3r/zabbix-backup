@@ -203,7 +203,7 @@ ERRORLOG=$(mktemp)
 DBHOSTNAME="$DBHOST"
 command -v dig >/dev/null 2>&1
 FIND_DIG=$?
-if [ "$REVERSELOOKUP" == "yes" -a $FIND_DIG -eq 0 -a -z "$DBHOST" ]; then
+if [ "$REVERSELOOKUP" == "yes" -a $FIND_DIG -eq 0 -a ! -z "$DBHOST" ]; then
 	# Try resolving a given host ip
 	newHostname=$(dig +noall +answer -x $DBHOST | sed -r 's/((\S+)\s+)+([^\.]+)\..*/\3/')
 	test \! -z "$newHostname" && DBHOSTNAME="$newHostname"
