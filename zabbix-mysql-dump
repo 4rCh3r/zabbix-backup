@@ -49,6 +49,7 @@ COMPRESSION="gz"
 QUIET="no"
 REVERSELOOKUP="yes"
 GENERATIONSTOKEEP=0
+ZBXCONFIG="/etc/zabbix/zabbix_server.conf"
 
 #
 # SHOW HELP
@@ -98,6 +99,9 @@ OPTIONS
 		but the resulting backup will be about half the size of the same
 		sql file compressed using gz. Your mileage may vary.
 
+	-z
+		Specify a zabbix configuration file to read from.
+
 	-0
 		Do not compress the sql dump
 
@@ -112,6 +116,7 @@ EXAMPLES
 	$(basename $BASH_SOURCE) -u zabbix -p - -o /tmp
 	$(basename $BASH_SOURCE) -c /etc/mysql/mysql.cnf
 	$(basename $BASH_SOURCE) -c /etc/mysql/mysql.cnf -d zabbixdb
+	$(basename $BASH_SOURCE) -z /opt/etc/zabbix_server.conf -o /tmp
 
 EOF
 	exit 1
@@ -124,11 +129,13 @@ DB_GIVEN=0
 while getopts ":h:d:u:p:o:r:c:x0qn" opt; do
 	case $opt in
 		h)  DBHOST="$OPTARG" ;;
+		s)  DBSOCKET="$OPTARG" ;;
 		d)  DBNAME="$OPTARG"; DB_GIVEN=1 ;;
 		u)  DBUSER="$OPTARG" ;;
 		p)  DBPASS="$OPTARG" ;;
 		c)  CNFFILE="$OPTARG" ;;
 		o)  DUMPDIR="$OPTARG" ;;
+		z)  ZBXCONFIG="$OPTARG" ;;
 		r)  GENERATIONSTOKEEP=$(printf '%.0f' "$OPTARG") ;;
 		x)  COMPRESSION="xz" ;;
 		0)  COMPRESSION="" ;;
@@ -138,6 +145,15 @@ while getopts ":h:d:u:p:o:r:c:x0qn" opt; do
 		:)  echo "Option -$OPTARG requires an argument" >&2; exit 1 ;;
 	esac
 done
+
+if [[ -f ${ZBXCONFIG} && -r ${ZBXCONFIG} ]]; then
+	source ${ZBXCONFIG}
+	DBHOST=$DBHost
+	DBSOCKET=$DBSocket
+	DBNAME=$DBName
+	DBUSER=$DBUser
+	DBPASS=$DBPassword
+fi
 
 # Password prompt
 if [ "$DBPASS" = "-" ]; then
@@ -167,6 +183,7 @@ SUFFIX=""; test ! -z $COMPRESSION && SUFFIX=".${COMPRESSION}"
 MYSQL_OPTS=()
 [ ! -z "$CNFFILE" ] && MYSQL_OPTS=("${MYSQL_OPTS[@]}" --defaults-extra-file="$CNFFILE")
 [ ! -z "$DBHOST" ] && MYSQL_OPTS=("${MYSQL_OPTS[@]}" -h $DBHOST)
+[ ! -z "$DBSOCKET" ] && MYSQL_OPTS=("${MYSQL_OPTS[@]}" -S $DBSOCKET)
 [ ! -z "$DBUSER" ] && MYSQL_OPTS=("${MYSQL_OPTS[@]}" -u $DBUSER)
 [ ! -z "$DBPASS" ] && MYSQL_OPTS=("${MYSQL_OPTS[@]}" -p"$DBPASS")
 
