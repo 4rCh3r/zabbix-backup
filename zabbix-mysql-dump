@@ -57,7 +57,7 @@ ZBXCONFIG="/etc/zabbix/zabbix_server.conf"
 if [ -z "$1" ]; then
 	cat <<EOF
 USAGE
-	$(basename $BASH_SOURCE) [options]
+	$(basename "${BASH_SOURCE[*]}") [options]
 
 OPTIONS
 	-h HOST
@@ -112,11 +112,11 @@ OPTIONS
 		Quiet mode: no output except for errors (for batch/crontab use).
 
 EXAMPLES
-	$(basename $BASH_SOURCE) -h 1.2.3.4 -d zabbixdb -u zabbix -p test
-	$(basename $BASH_SOURCE) -u zabbix -p - -o /tmp
-	$(basename $BASH_SOURCE) -c /etc/mysql/mysql.cnf
-	$(basename $BASH_SOURCE) -c /etc/mysql/mysql.cnf -d zabbixdb
-	$(basename $BASH_SOURCE) -z /opt/etc/zabbix_server.conf -o /tmp
+	$(basename "${BASH_SOURCE[*]}") -h 1.2.3.4 -d zabbixdb -u zabbix -p test
+	$(basename "${BASH_SOURCE[*]}") -u zabbix -p - -o /tmp
+	$(basename "${BASH_SOURCE[*]}") -c /etc/mysql/mysql.cnf
+	$(basename "${BASH_SOURCE[*]}") -c /etc/mysql/mysql.cnf -d zabbixdb
+	$(basename "${BASH_SOURCE[*]}") -z /opt/etc/zabbix_server.conf -o /tmp
 
 EOF
 	exit 1
@@ -148,11 +148,11 @@ done
 
 if [[ -f ${ZBXCONFIG} && -r ${ZBXCONFIG} ]]; then
 	source ${ZBXCONFIG}
-	DBHOST=$DBHost
-	DBSOCKET=$DBSocket
-	DBNAME=$DBName
-	DBUSER=$DBUser
-	DBPASS=$DBPassword
+	DBHOST="${DBHost}"
+	DBSOCKET="${DBSocket}"
+	DBNAME="${DBName}"
+	DBUSER="${DBUser}"
+	DBPASS="${DBPassword}"
 fi
 
 [ ! -z "$ODBHOST" ] && DBHOST=$ODBHOST
