@@ -101,6 +101,7 @@ OPTIONS
 
 	-z
 		Specify a zabbix configuration file to read from.
+		Default: $ZBXCONFIG
 
 	-0
 		Do not compress the sql dump
@@ -155,6 +156,7 @@ if [[ -f ${ZBXCONFIG} && -r ${ZBXCONFIG} ]]; then
 	DBPASS="${DBPassword}"
 fi
 
+# options specified explicitely override those from zabbix_server.conf (if any)
 [ ! -z "$ODBHOST" ] && DBHOST=$ODBHOST
 [ ! -z "$ODBSOCKET" ] && DBSOCKET=$ODBSOCKET
 [ ! -z "$ODBNAME" ] && DBNAME=$ODBNAME
