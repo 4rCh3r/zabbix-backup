@@ -423,7 +423,7 @@ item_discovery             1.9.0    - 4.0.0
 item_preproc               3.4.0    - 4.0.0
 items                      1.3.1    - 4.0.0
 items_applications         1.3.1    - 4.0.0
-maintenance_tag            4.0.0    - 4.0.0  DATA
+maintenance_tag            4.0.0    - 4.0.0
 maintenances               1.7      - 4.0.0
 maintenances_groups        1.7      - 4.0.0
 maintenances_hosts         1.7      - 4.0.0
