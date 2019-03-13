@@ -314,7 +314,7 @@ esac
 DATA_TABLES=()
 while read -r line; do
     table=$(echo "$line" | cut -d" " -f1)
-    echo "$line" | cut -d" " -f5 | grep -qi "DATA"
+    echo "$line" | cut -d" " -f5 | grep -qi "SCHEMAONLY"
     test $? -eq 0 && DATA_TABLES+=($table)
 done < <(sed '0,/^__DATA__$/d' "${BASH_SOURCE[*]}" | tr -s " ")
 
@@ -467,19 +467,21 @@ clean_psql_pass
 exit 0
 
 ################################################################################
-# List of all known table names and a flag indicating data (=large) tables
+# List of all known table names.
+# The flag SCHEMAONLY marks tables that contain monitoring data (as opposed to
+# config data), so only their database schema will be backed up.
 #
 
 __DATA__
-acknowledges               1.3.1    - 4.0.0  DATA
+acknowledges               1.3.1    - 4.0.0  SCHEMAONLY
 actions                    1.3.1    - 4.0.0
-alerts                     1.3.1    - 4.0.0  DATA
+alerts                     1.3.1    - 4.0.0  SCHEMAONLY
 application_discovery      2.5.0    - 4.0.0
 application_prototype      2.5.0    - 4.0.0
 application_template       2.1.0    - 4.0.0
 applications               1.3.1    - 4.0.0
-auditlog                   1.3.1    - 4.0.0  DATA
-auditlog_details           1.7      - 4.0.0  DATA
+auditlog                   1.3.1    - 4.0.0  SCHEMAONLY
+auditlog_details           1.7      - 4.0.0  SCHEMAONLY
 autoreg                    1.3.1    - 1.3.4
 autoreg_host               1.7      - 4.0.0
 conditions                 1.3.1    - 4.0.0
@@ -500,10 +502,10 @@ dhosts                     1.3.4    - 4.0.0
 drules                     1.3.4    - 4.0.0
 dservices                  1.3.4    - 4.0.0
 escalations                1.5.3    - 4.0.0
-event_recovery             3.2.0    - 4.0.0  DATA
-event_suppress             4.0.0    - 4.0.0  DATA
-event_tag                  3.2.0    - 4.0.0  DATA
-events                     1.3.1    - 4.0.0  DATA
+event_recovery             3.2.0    - 4.0.0  SCHEMAONLY
+event_suppress             4.0.0    - 4.0.0  SCHEMAONLY
+event_tag                  3.2.0    - 4.0.0  SCHEMAONLY
+events                     1.3.1    - 4.0.0  SCHEMAONLY
 expressions                1.7      - 4.0.0
 functions                  1.3.1    - 4.0.0
 globalmacro                1.7      - 4.0.0
@@ -516,14 +518,14 @@ group_discovery            2.1.4    - 4.0.0
 group_prototype            2.1.4    - 4.0.0
 groups                     1.3.1    - 3.4.1
 help_items                 1.3.1    - 2.1.8
-history                    1.3.1    - 4.0.0  DATA
-history_log                1.3.1    - 4.0.0  DATA
-history_str                1.3.1    - 3.4.1  DATA
-history_str_sync           1.3.1    - 2.2.13 DATA
-history_sync               1.3.1    - 2.2.13 DATA
-history_text               1.3.1    - 4.0.0  DATA
-history_uint               1.3.1    - 4.0.0  DATA
-history_uint_sync          1.3.1    - 2.2.13 DATA
+history                    1.3.1    - 4.0.0  SCHEMAONLY
+history_log                1.3.1    - 4.0.0  SCHEMAONLY
+history_str                1.3.1    - 3.4.1  SCHEMAONLY
+history_str_sync           1.3.1    - 2.2.13 SCHEMAONLY
+history_sync               1.3.1    - 2.2.13 SCHEMAONLY
+history_text               1.3.1    - 4.0.0  SCHEMAONLY
+history_uint               1.3.1    - 4.0.0  SCHEMAONLY
+history_uint_sync          1.3.1    - 2.2.13 SCHEMAONLY
 host_discovery             2.1.4    - 4.0.0
 host_inventory             1.9.6    - 4.0.0
 host_profile               1.9.3    - 1.9.5
@@ -576,8 +578,8 @@ opmessage                  1.9.2    - 4.0.0
 opmessage_grp              1.9.2    - 4.0.0
 opmessage_usr              1.9.2    - 4.0.0
 optemplate                 1.9.2    - 4.0.0
-problem                    3.2.0    - 4.0.0  DATA
-problem_tag                3.2.0    - 4.0.0  DATA
+problem                    3.2.0    - 4.0.0  SCHEMAONLY
+problem_tag                3.2.0    - 4.0.0  SCHEMAONLY
 profiles                   1.3.1    - 4.0.0
 proxy_autoreg_host         1.7      - 4.0.0
 proxy_dhistory             1.5      - 4.0.0
@@ -609,15 +611,15 @@ sysmaps_elements           1.3.1    - 4.0.0
 sysmaps_link_triggers      1.5      - 4.0.0
 sysmaps_links              1.3.1    - 4.0.0
 tag_filter                 4.0.0    - 4.0.0
-task                       3.2.0    - 4.0.0  DATA
-task_acknowledge           3.4.0    - 4.0.0  DATA
-task_check_now             4.0.0    - 4.0.0  DATA
-task_close_problem         3.2.0    - 4.0.0  DATA
-task_remote_command        3.4.0    - 4.0.0  DATA
-task_remote_command_result 3.4.0    - 4.0.0  DATA
+task                       3.2.0    - 4.0.0  SCHEMAONLY
+task_acknowledge           3.4.0    - 4.0.0  SCHEMAONLY
+task_check_now             4.0.0    - 4.0.0  SCHEMAONLY
+task_close_problem         3.2.0    - 4.0.0  SCHEMAONLY
+task_remote_command        3.4.0    - 4.0.0  SCHEMAONLY
+task_remote_command_result 3.4.0    - 4.0.0  SCHEMAONLY
 timeperiods                1.7      - 4.0.0
-trends                     1.3.1    - 4.0.0  DATA
-trends_uint                1.5      - 4.0.0  DATA
+trends                     1.3.1    - 4.0.0  SCHEMAONLY
+trends_uint                1.5      - 4.0.0  SCHEMAONLY
 trigger_depends            1.3.1    - 4.0.0
 trigger_discovery          1.9.0    - 4.0.0
 trigger_tag                3.2.0    - 4.0.0
