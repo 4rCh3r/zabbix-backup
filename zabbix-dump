@@ -148,7 +148,7 @@ fi
 # PARSE COMMAND LINE ARGUMENTS
 #
 DB_GIVEN=0
-while getopts ":t:H:d:u:z:s:p:P:o:r:c:x0qn" opt; do
+while getopts ":c:d:H:o:p:P:r:s:t:u:z:x0qn" opt; do
     case $opt in
         H)  ODBHOST="$OPTARG" ;;
         s)  ODBSOCKET="$OPTARG" ;;
