@@ -77,11 +77,11 @@ OPTIONS
         Name of Zabbix database.
         Default: $DBNAME
 
-    -u USER
+    -u DBUSER
         DBMS user to access Zabbix database.
         Default: $DBUSER
 
-    -p PASSWORD
+    -p DBPASSWORD
         DBMS user password (specify "-" for a prompt).
         Default: no password
 
@@ -89,11 +89,12 @@ OPTIONS
         Save Zabbix database dumps to DIR.
         Default: $DUMPDIR
 
-    -c FILE
-        MySQL only: use FILE for MySQL options.
+    -c MYSQL_CONFIG
+        MySQL only:
+        Read database host and credentials from given MySQL config file.
         PLEASE NOTE:
-        So the first "database" options found in the given config file is used
-        for mysqldump (it needs the database to be specified via command line).
+        The first "database" option found in the config file is used for
+        mysqldump (it needs the database to be specified via command line).
 
     -r NUM
         Rotate backups while keeping up to NUM generations.
@@ -117,11 +118,20 @@ OPTIONS
         Quiet mode: no output except for errors (for batch/crontab use).
 
 EXAMPLES
-    $(basename "${BASH_SOURCE[*]}") -t psql -h 1.2.3.4 -d zabbixdb -u zabbix -p test
-    $(basename "${BASH_SOURCE[*]}") -u zabbix -p - -o /tmp
+    # backup local Zabbix MySQL database into current directory
+    # (reads database access options from $ZBXCONFIG)
+    $(basename "${BASH_SOURCE[*]}")
+
+    # backup PostgreSQL database
+    $(basename "${BASH_SOURCE[*]}") -t psql
+
+    # specify MySQL database and user, ask for password
+    $(basename "${BASH_SOURCE[*]}") -d zabbixdb -u zabbix -p - -o /tmp
+
+    # read DB options from MySQL config file
     $(basename "${BASH_SOURCE[*]}") -c /etc/mysql/mysql.cnf
+    # ...and overwrite database name
     $(basename "${BASH_SOURCE[*]}") -c /etc/mysql/mysql.cnf -d zabbixdb
-    $(basename "${BASH_SOURCE[*]}") -z /opt/etc/zabbix_server.conf -o /tmp
 
 EOF
     exit 1
@@ -237,12 +247,12 @@ fi
 #
 if [ "$QUIET" == "no" ]; then
     cat <<-EOF
-    Configuration:
-     - type:     $DBTYPE
-     - host:     $DBHOST ($DBHOSTNAME)
-     - database: $DBNAME
-     - user:     $DBUSER
-     - output:   $DUMPDIR
+Configuration:
+ - type:     $DBTYPE
+ - host:     $DBHOST ($DBHOSTNAME)
+ - database: $DBNAME
+ - user:     $DBUSER
+ - output:   $DUMPDIR
 
 EOF
 fi
