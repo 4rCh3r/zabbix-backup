@@ -154,7 +154,7 @@ while getopts ":c:d:H:o:p:P:r:s:t:u:z:x0qn" opt; do
         s)  ODBSOCKET="$OPTARG" ;;
         d)  ODBNAME="$OPTARG"; DB_GIVEN=1 ;;
         u)  ODBUSER="$OPTARG" ;;
-        P)  DBPORT="$OPTARG" ;;
+        P)  ODBPORT="$OPTARG" ;;
         p)  ODBPASS="$OPTARG" ;;
         c)  CNFFILE="$OPTARG" ;;
         o)  DUMPDIR="$OPTARG" ;;
@@ -173,6 +173,7 @@ if [[ -f "${ZBXCONFIG}" && -r "${ZBXCONFIG}" ]]; then
     [ "$QUIET" == "no" ] && echo "Reading database options from ${ZBXCONFIG}..."
     source "${ZBXCONFIG}"
     DBHOST="${DBHost}"
+    DBPORT="${DBPort}"
     DBSOCKET="${DBSocket}"
     DBNAME="${DBName}"
     DBUSER="${DBUser}"
@@ -181,6 +182,7 @@ fi
 
 # options specified explicitely override those from zabbix_server.conf (if any)
 [ ! -z "$ODBHOST" ] && DBHOST=$ODBHOST
+[ ! -z "$ODBPORT" ] && DBPORT=$ODBPORT
 [ ! -z "$ODBSOCKET" ] && DBSOCKET=$ODBSOCKET
 [ ! -z "$ODBNAME" ] && DBNAME=$ODBNAME
 [ ! -z "$ODBUSER" ] && DBUSER=$ODBUSER
