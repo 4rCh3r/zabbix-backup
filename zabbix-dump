@@ -55,7 +55,7 @@ ZBXCONFIG="/etc/zabbix/zabbix_server.conf"
 #
 # SHOW HELP
 #
-if [ -z "$1" ]; then
+if [[ "$1" == "--help" || "$1" == "-h" ]]; then
     cat <<EOF
 USAGE
     $(basename "${BASH_SOURCE[*]}") [options]
@@ -65,7 +65,7 @@ OPTIONS
         Database type (mysql or psql).
         Default: $DBTYPE
 
-    -h HOST
+    -H DBHOST
         Hostname/IP of database server (DBMS).
         Default: $DBHOST
 
@@ -131,9 +131,9 @@ fi
 # PARSE COMMAND LINE ARGUMENTS
 #
 DB_GIVEN=0
-while getopts ":t:h:d:u:z:s:p:P:o:r:c:x0qn" opt; do
+while getopts ":t:H:d:u:z:s:p:P:o:r:c:x0qn" opt; do
     case $opt in
-        h)  ODBHOST="$OPTARG" ;;
+        H)  ODBHOST="$OPTARG" ;;
         s)  ODBSOCKET="$OPTARG" ;;
         d)  ODBNAME="$OPTARG"; DB_GIVEN=1 ;;
         u)  ODBUSER="$OPTARG" ;;
