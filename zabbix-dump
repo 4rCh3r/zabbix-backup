@@ -360,34 +360,34 @@ mkdir -p "${DUMPDIR}"
 [ "$QUIET" == "no" ] && echo "Starting table backups..."
 case $DBTYPE in
     mysql)
-while read table; do
-    # large data tables: only store schema
-    if elementIn "$table" "${DATA_TABLES[@]}"; then
-        dump_opt="--no-data"
-        PROCESSED_DATA_TABLES+=($table)
-    # configuration tables: full dump
-    else
-        dump_opt="--extended-insert=FALSE"
-    fi
+        while read table; do
+            # large data tables: only store schema
+            if elementIn "$table" "${DATA_TABLES[@]}"; then
+                dump_opt="--no-data"
+                PROCESSED_DATA_TABLES+=($table)
+            # configuration tables: full dump
+            else
+                dump_opt="--extended-insert=FALSE"
+            fi
 
             mysqldump "${DB_OPTS[@]}" \
-        --routines --opt --single-transaction --skip-lock-tables \
-        $dump_opt \
-        $DBNAME --tables ${table} >> "$DUMPFILE" 2>$ERRORLOG
+                --routines --opt --single-transaction --skip-lock-tables \
+                $dump_opt \
+                $DBNAME --tables ${table} >> "$DUMPFILE" 2>$ERRORLOG
 
-    if [ $? -ne 0 ]; then echo -e "\nERROR: Could not backup table ${table}:" >&2; cat $ERRORLOG >&2; exit 1; fi
+            if [ $? -ne 0 ]; then echo -e "\nERROR: Could not backup table ${table}:" >&2; cat $ERRORLOG >&2; exit 1; fi
 
-    if [ "$QUIET" == "no" ]; then
-        # show percentage
-        i=$((i+1)); i_percent=$(($i * 100 / $DB_TABLE_NUM))
-        if [ $(($i_percent % 12)) -eq 0 ]; then
-            echo -n "${i_percent}%"
-        else
-            if [ $(($i_percent % 2)) -eq 0 ]; then echo -n "."; fi
-        fi
-    fi
-done <<<"$DB_TABLES"
-        ;;
+            if [ "$QUIET" == "no" ]; then
+                # show percentage
+                i=$((i+1)); i_percent=$(($i * 100 / $DB_TABLE_NUM))
+                if [ $(($i_percent % 12)) -eq 0 ]; then
+                    echo -n "${i_percent}%"
+                else
+                    if [ $(($i_percent % 2)) -eq 0 ]; then echo -n "."; fi
+                fi
+            fi
+        done <<<"$DB_TABLES"
+    ;;
     psql)
         while read table; do
             if elementIn "$table" "${DATA_TABLES[@]}"; then
@@ -403,7 +403,7 @@ done <<<"$DB_TABLES"
             clean_psql_pass
             exit 1
         fi
-        ;;
+    ;;
 esac
 
 rm $ERRORLOG
