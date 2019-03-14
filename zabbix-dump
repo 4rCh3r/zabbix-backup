@@ -227,6 +227,7 @@ case $DBTYPE in
         [ ! -z "$DBNAME" ] && DB_OPTS_BATCH=("${DB_OPTS_BATCH[@]}" -D $DBNAME)
         ;;
     psql)
+        [ ! -z "$DBSOCKET" ] && DB_OPTS=("${DB_OPTS[@]}" -h $DBSOCKET)
         [ ! -z "$DBUSER" ] && DB_OPTS=("${DB_OPTS[@]}" -U $DBUSER)
         [ -z "$DBPORT" ] && DBPORT="5432"
         DB_OPTS=("${DB_OPTS[@]}" -p"$DBPORT")
