@@ -89,6 +89,10 @@ OPTIONS
         Save Zabbix database dumps to DIR.
         Default: $DUMPDIR
 
+    -z ZABBIX_CONFIG
+        Read database host and credentials from given Zabbix config file.
+        Default: $ZBXCONFIG
+
     -c MYSQL_CONFIG
         MySQL only:
         Read database host and credentials from given MySQL config file.
@@ -124,6 +128,9 @@ EXAMPLES
 
     # backup PostgreSQL database
     $(basename "${BASH_SOURCE[*]}") -t psql
+
+    # read DB options from given Zabbix config file
+    $(basename "${BASH_SOURCE[*]}") -z /opt/etc/zabbix_server.conf
 
     # specify MySQL database and user, ask for password
     $(basename "${BASH_SOURCE[*]}") -d zabbixdb -u zabbix -p - -o /tmp
@@ -162,8 +169,9 @@ while getopts ":t:H:d:u:z:s:p:P:o:r:c:x0qn" opt; do
     esac
 done
 
-if [[ -f ${ZBXCONFIG} && -r ${ZBXCONFIG} ]]; then
-    source ${ZBXCONFIG}
+if [[ -f "${ZBXCONFIG}" && -r "${ZBXCONFIG}" ]]; then
+    [ "$QUIET" == "no" ] && echo "Reading database options from ${ZBXCONFIG}..."
+    source "${ZBXCONFIG}"
     DBHOST="${DBHost}"
     DBSOCKET="${DBSocket}"
     DBNAME="${DBName}"
