@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # NAME
-#     zabbix-mysql-dump - Configuration Backup for Zabbix with MySQL
+#     zabbix-dump - Configuration Backup for Zabbix' MySQL or PostgreSQL data
 #
 # VERSION
 #     0.8.2
@@ -60,28 +60,28 @@ USAGE
 	$(basename $BASH_SOURCE) [options]
 
 OPTIONS
-    -t DATABASE_TYPE
-        Zabbix database type (mysql or psql)
-        Default: $DBTYPE
+	-t DATABASE_TYPE
+		Database type (mysql or psql).
+		Default: $DBTYPE
 
 	-h HOST
-		Hostname/IP of MySQL server.
+		Hostname/IP of database server (DBMS).
 		Default: $DBHOST
 
-	-d DATABASE
-		/Zabbix database name.
-		Default: $DBNAME
- 
 	-P DBPORT
-		Zabbix database port.
+		DBMS port.
 		Default: $DBPORT
 
+	-d DATABASE
+		Name of Zabbix database.
+		Default: $DBNAME
+
 	-u USER
-		User to access Zabbix database.
+		DBMS user to access Zabbix database.
 		Default: $DBUSER
 
 	-p PASSWORD
-		User password (specify "-" for a prompt).
+		DBMS user password (specify "-" for a prompt).
 		Default: no password
 
 	-o DIR
@@ -89,11 +89,10 @@ OPTIONS
 		Default: $DUMPDIR
 
 	-c FILE
-		Use FILE for MySQL (only) options (passed via --defaults-extra-file).
+		MySQL only: use FILE for MySQL options.
 		PLEASE NOTE:
-		mysqldump needs the database to be specified via command line.
-		So the first "database" options found in the config file is
-		used for mysqldump.
+		So the first "database" options found in the given config file is used
+		for mysqldump (it needs the database to be specified via command line).
 
 	-r NUM
 		Rotate backups while keeping up to NUM generations.
@@ -101,14 +100,14 @@ OPTIONS
 		Default: keep all backups
 
 	-x
-		Compress using xz instead of gz
+		Compress using XZ instead of GZip.
 		PLEASE NOTE:
-		xz compression will take much longer and consume more CPU time
+		XZ compression will take much longer and consume more CPU time
 		but the resulting backup will be about half the size of the same
-		sql file compressed using gz. Your mileage may vary.
+		sql dump compressed using GZip. Your mileage may vary.
 
 	-0
-		Do not compress the sql dump
+		Do not compress the dump.
 
 	-n
 		Skip reverse lookup of IP address for host.
@@ -190,7 +189,7 @@ case $DBTYPE in
     psql)
         [ ! -z "$DBUSER" ] && DB_OPTS=("${DB_OPTS[@]}" -U $DBUSER)
         [ -z "$DBPORT" ] && DBPORT="5432"
-		DB_OPTS=("${DB_OPTS[@]}" -p"$DBPORT")       
+		DB_OPTS=("${DB_OPTS[@]}" -p"$DBPORT")
         if [ ! -z "$DBPASS" ]; then
            export PGPASSFILE=$(mktemp -u)
            echo "$DBHOST:$DBPORT:$DBNAME:$DBUSER:$DBPASS" > $PGPASSFILE
@@ -219,11 +218,11 @@ fi
 if [ "$QUIET" == "no" ]; then
 	cat <<-EOF
 	Configuration:
-	 - database type: $DBTYPE
-	 - host:          $DBHOST ($DBHOSTNAME)
-	 - database:      $DBNAME
-	 - user:          $DBUSER
-	 - output:        $DUMPDIR
+	 - type:     $DBTYPE
+	 - host:     $DBHOST ($DBHOSTNAME)
+	 - database: $DBNAME
+	 - user:     $DBUSER
+	 - output:   $DUMPDIR
 
 EOF
 fi
@@ -240,17 +239,14 @@ elementIn () {
 }
 check_binary() {
     if [ ! -x "/usr/bin/$1" ]; then
-        echo "$1 not found." >&2
+        echo "Executable '$1' not found." >&2
         case $1 in
             mysql)
-                echo "(with Debian, \"apt-get install mysql-client\" will help)" >&2
-                exit 1
-                ;;
+                echo "(with Debian try \"apt-get install mysql-client\")" >&2 ;;
             psql)
-                echo "(with Debian, \"apt-get install postgresql-client\" will help)" >&2
-                exit 1
-                ;;
+                echo "(with Debian try \"apt-get install postgresql-client\")" >&2 ;;
         esac
+        exit 1
     fi
 }
 clean_psql_pass() {
@@ -263,15 +259,13 @@ clean_psql_pass() {
 #
 case $DBTYPE in
     mysql)
-        check_binary mysqldump
-        ;;
+        check_binary mysqldump ;;
     psql)
-        check_binary pg_dump
-        ;;
+        check_binary pg_dump ;;
     *)
-        echo "Sorry, don't support database type '$DBTYPE'"
-        exit 1
-        ;;
+        echo "Sorry, database type '$DBTYPE' is not supported."
+        echo "Please specify either 'mysql' or 'psql'."
+        exit 1 ;;
 esac
 #
 # READ TABLE LIST from __DATA__ section at the end of this script
@@ -380,6 +374,7 @@ case $DBTYPE in
                 PROCESSED_DATA_TABLES+=($dump_opt)
             fi
         done <<<"$DB_TABLES"
+
         pg_dump "${DB_OPTS[@]}" ${PROCESSED_DATA_TABLES[@]} > "$DUMPFILE" 2>$ERRORLOG
         if [ $? -ne 0 ]; then
             echo -e "\nERROR: Could not backup database." >&2
