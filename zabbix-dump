@@ -135,6 +135,10 @@ OPTIONS
     -q
         Quiet mode: no output except for errors (for batch/crontab use).
 
+    -h
+    --help
+        Show this help.
+
 EXAMPLES
     # read $ZBX_CONFIG to backup local Zabbix server's
     # MySQL database into current directory
