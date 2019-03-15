@@ -159,6 +159,7 @@ fi
 DB_GIVEN=0
 while getopts ":c:d:H:o:p:P:r:s:t:u:z:0nqxZ" opt; do
     case $opt in
+        t)  DBTYPE="$OPTARG" ;;
         H)  ODBHOST="$OPTARG" ;;
         s)  ODBSOCKET="$OPTARG" ;;
         d)  ODBNAME="$OPTARG"; DB_GIVEN=1 ;;
