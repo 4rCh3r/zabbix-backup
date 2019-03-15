@@ -234,7 +234,7 @@ fi
 # Options specified via command line override defaults or those from zabbix_server.conf (if any)
 [ ! -z "$ODBHOST" ] && DBHOST=$ODBHOST
 [ ! -z "$ODBPORT" ] && DBPORT=$ODBPORT
-[ ! -z "$ODBSOCKET" ] && DBSOCKET=$ODBSOCKET
+[ ! -z "$ODBSOCKET" ] && DBSOCKET=$ODBSOCKET && DBHOST=""
 [ ! -z "$ODBNAME" ] && DBNAME=$ODBNAME
 [ ! -z "$ODBUSER" ] && DBUSER=$ODBUSER
 [ ! -z "$ODBPASS" ] && DBPASS=$ODBPASS
