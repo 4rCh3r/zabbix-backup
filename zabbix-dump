@@ -189,6 +189,8 @@ while getopts ":c:d:H:o:p:P:r:s:t:u:z:0nqxZ" opt; do
     esac
 done
 
+[ ! -z "$MYSQL_CONFIG" ] && READ_ZBX_CONFIG="no"
+
 # (Try) reading database config from zabbix_server.conf
 if [[ "${READ_ZBX_CONFIG}" == "yes" && -f "${ZBX_CONFIG}" && -r "${ZBX_CONFIG}" ]]; then
     [ "$QUIET" == "no" ] && echo "Reading database options from ${ZBX_CONFIG}..."
@@ -216,10 +218,13 @@ if [[ "${READ_ZBX_CONFIG}" == "yes" && -f "${ZBX_CONFIG}" && -r "${ZBX_CONFIG}" 
     DBPASS="${DBPassword}"
 # Otherwise: set default values
 else
-    DBHOST="$DEFAULT_DBHOST"
-    DBNAME="$DEFAULT_DBNAME"
-    DBUSER="$DEFAULT_DBUSER"
-    DBPASS="$DEFAULT_DBPASS"
+    # if a MySQL config file is specified we assume it contains all connection parameters
+    if [ -z "$MYSQL_CONFIG" ]; then
+        DBHOST="$DEFAULT_DBHOST"
+        DBNAME="$DEFAULT_DBNAME"
+        DBUSER="$DEFAULT_DBUSER"
+        DBPASS="$DEFAULT_DBPASS"
+    fi
 fi
 
 # Always set default ports, even if we read other parameters from zabbix_server.conf
@@ -252,6 +257,11 @@ if [ ! -z "$MYSQL_CONFIG" ]; then
     if [ $DB_GIVEN -eq 0 ]; then
         DBNAME=$(grep -m 1 ^database= "$MYSQL_CONFIG" | cut -d= -f2)
     fi
+fi
+
+if [ -z "$DBNAME" ]; then
+    echo "ERROR: Please specify a database name (option -d)"
+    exit 1
 fi
 
 #
