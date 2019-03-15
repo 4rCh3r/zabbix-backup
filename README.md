@@ -22,6 +22,7 @@ Please see the [Project Wiki](https://github.com/maxhq/zabbix-backup/wiki).
 - NEW: Database connection parameters are read from Zabbix servern config by default (Greg Cockburn)
 - ENH: Support for Zabbix 4.0 (Wesley Schaft)
 - ENH: Options -h and --help to show help (hostname is now specified using -H)
+- ENH: Options -Z to skip reading the Zabbix server config file
 - CHG: Rename script to "zabbix-dump"
 - FIX: Support for whitespaces in database parameters (Greg Cockburn)
 - FIX: Support for backslashes in manually entered password (Greg Cockburn)

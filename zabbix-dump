@@ -56,6 +56,7 @@ QUIET="no"
 REVERSELOOKUP="yes"
 GENERATIONSTOKEEP=0
 ZBXCONFIG="/etc/zabbix/zabbix_server.conf"
+READ_ZBXCONFIG="yes"
 
 #
 # SHOW HELP
@@ -97,6 +98,9 @@ OPTIONS
     -z ZABBIX_CONFIG
         Read database host and credentials from given Zabbix config file.
         Default: $ZBXCONFIG
+
+    -Z
+        Do not try to read the Zabbix server configuration.
 
     -c MYSQL_CONFIG
         MySQL only:
@@ -153,7 +157,7 @@ fi
 # PARSE COMMAND LINE ARGUMENTS
 #
 DB_GIVEN=0
-while getopts ":c:d:H:o:p:P:r:s:t:u:z:x0qn" opt; do
+while getopts ":c:d:H:o:p:P:r:s:t:u:z:0nqxZ" opt; do
     case $opt in
         H)  ODBHOST="$OPTARG" ;;
         s)  ODBSOCKET="$OPTARG" ;;
@@ -164,6 +168,7 @@ while getopts ":c:d:H:o:p:P:r:s:t:u:z:x0qn" opt; do
         c)  CNFFILE="$OPTARG" ;;
         o)  DUMPDIR="$OPTARG" ;;
         z)  ZBXCONFIG="$OPTARG" ;;
+        Z)  READ_ZBXCONFIG="no" ;;
         r)  GENERATIONSTOKEEP=$(printf '%.0f' "$OPTARG") ;;
         x)  COMPRESSION="xz" ;;
         0)  COMPRESSION="" ;;
@@ -174,7 +179,7 @@ while getopts ":c:d:H:o:p:P:r:s:t:u:z:x0qn" opt; do
     esac
 done
 
-if [[ -f "${ZBXCONFIG}" && -r "${ZBXCONFIG}" ]]; then
+if [[ "${READ_ZBXCONFIG}" == "yes" && -f "${ZBXCONFIG}" && -r "${ZBXCONFIG}" ]]; then
     [ "$QUIET" == "no" ] && echo "Reading database options from ${ZBXCONFIG}..."
     source "${ZBXCONFIG}"
     DBHOST="${DBHost}"
