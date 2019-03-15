@@ -260,7 +260,6 @@ fi
 SUFFIX=""; test ! -z $COMPRESSION && SUFFIX=".${COMPRESSION}"
 
 DB_OPTS=()
-[ ! -z "$DBHOST" ] && DB_OPTS=("${DB_OPTS[@]}" -h $DBHOST)
 case $DBTYPE in
     mysql)
         [ ! -z "$MYSQL_CONFIG" ] && DB_OPTS=("${DB_OPTS[@]}" --defaults-extra-file="$MYSQL_CONFIG")
@@ -284,6 +283,8 @@ case $DBTYPE in
         [ ! -z "$DBNAME" ] && DB_OPTS_BATCH=("${DB_OPTS_BATCH[@]}" -d $DBNAME)
         ;;
 esac
+[ ! -z "$DBHOST" ] && DB_OPTS=("${DB_OPTS[@]}" -h $DBHOST)
+
 # Log file for errors
 ERRORLOG=$(mktemp)
 
