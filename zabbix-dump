@@ -279,7 +279,7 @@ elementIn () {
     return 1
 }
 check_binary() {
-    if [ ! -x "/usr/bin/$1" ]; then
+    if ! which $1 > /dev/null; then
         echo "Executable '$1' not found." >&2
         case $1 in
             mysql)
