@@ -47,10 +47,10 @@
 #
 DUMPDIR="$PWD"
 DBTYPE="mysql"
-DBHOST="127.0.0.1"
-DBNAME="zabbix"
-DBUSER="zabbix"
-DBPASS=""
+DEFAULT_DBHOST="127.0.0.1"
+DEFAULT_DBNAME="zabbix"
+DEFAULT_DBUSER="zabbix"
+DEFAULT_DBPASS=""
 COMPRESSION="gz"
 QUIET="no"
 REVERSELOOKUP="yes"
@@ -73,19 +73,24 @@ OPTIONS
 
     -H DBHOST
         Hostname/IP of database server (DBMS).
-        Default: $DBHOST
+        Default: $DEFAULT_DBHOST
 
     -P DBPORT
         DBMS port.
-        Default: $DBPORT
+        Default for mysql: 3306
+        Default for psql:  5432
+
+    -s DBSOCKET
+        Path to DBMS socket file.
+        Can be used as an alternative to specifying host (and maybe port).
 
     -d DATABASE
         Name of Zabbix database.
-        Default: $DBNAME
+        Default: $DEFAULT_DBNAME
 
     -u DBUSER
         DBMS user to access Zabbix database.
-        Default: $DBUSER
+        Default: $DEFAULT_DBUSER
 
     -p DBPASSWORD
         DBMS user password (specify "-" for a prompt).
@@ -131,18 +136,22 @@ OPTIONS
         Quiet mode: no output except for errors (for batch/crontab use).
 
 EXAMPLES
-    # backup local Zabbix MySQL database into current directory
-    # (reads database access options from $ZBX_CONFIG)
+    # read $ZBX_CONFIG to backup local Zabbix server's
+    # MySQL database into current directory
     $(basename "${BASH_SOURCE[*]}")
 
-    # backup PostgreSQL database
+    # ...same for PostgreSQL
     $(basename "${BASH_SOURCE[*]}") -t psql
+
+    # DO NOT read $ZBX_CONFIG,
+    # use instead to backup local MySQL database and ask for password
+    $(basename "${BASH_SOURCE[*]}") -Z -p -
 
     # read DB options from given Zabbix config file
     $(basename "${BASH_SOURCE[*]}") -z /opt/etc/zabbix_server.conf
 
     # specify MySQL database and user, ask for password
-    $(basename "${BASH_SOURCE[*]}") -d zabbixdb -u zabbix -p - -o /tmp
+    $(basename "${BASH_SOURCE[*]}") -Z -d zabbixdb -u zabbix -p - -o /tmp
 
     # read DB options from MySQL config file
     $(basename "${BASH_SOURCE[*]}") -c /etc/mysql/mysql.cnf
@@ -180,18 +189,44 @@ while getopts ":c:d:H:o:p:P:r:s:t:u:z:0nqxZ" opt; do
     esac
 done
 
+# (Try) reading database config from zabbix_server.conf
 if [[ "${READ_ZBX_CONFIG}" == "yes" && -f "${ZBX_CONFIG}" && -r "${ZBX_CONFIG}" ]]; then
     [ "$QUIET" == "no" ] && echo "Reading database options from ${ZBX_CONFIG}..."
     source "${ZBX_CONFIG}"
-    DBHOST="${DBHost}"
+
+    # set non-existing variables to their Zabbix defaults (if they are non-empty string)
+    [ -z ${DBHost+x} ] && DBHost="localhost"
+
+    # Zabbix config has a special treatment for DBHost:
+    # > If set to localhost, socket is used for MySQL.
+    # > If set to empty string, socket is used for PostgreSQL.
+    if [[ ( "$DBTYPE" == "mysql" && "${DBHost}" == "localhost" ) || ( "$DBTYPE" == "psql" && "${DBHost}" == "" ) ]]; then
+        [ "$DBTYPE" == "mysql" ] && searchstr="mysql"
+        [ "$DBTYPE" == "psql" ] && searchstr="postgres"
+        sock=$(netstat -axn | grep -m1 "$searchstr" | sed -r 's/^.*\s+([^ ]+)$/\1/')
+        if [[ ! -z "$sock" && -S $sock ]]; then DBSOCKET="$sock"; DBHOST=""; else DBHOST="${DBHost}"; fi
+    else
+        DBHOST="${DBHost}"
+        DBSOCKET="${DBSocket}"
+    fi
+
     DBPORT="${DBPort}"
-    DBSOCKET="${DBSocket}"
     DBNAME="${DBName}"
     DBUSER="${DBUser}"
     DBPASS="${DBPassword}"
+# Otherwise: set default values
+else
+    DBHOST="$DEFAULT_DBHOST"
+    DBNAME="$DEFAULT_DBNAME"
+    DBUSER="$DEFAULT_DBUSER"
+    DBPASS="$DEFAULT_DBPASS"
 fi
 
-# options specified explicitely override those from zabbix_server.conf (if any)
+# Always set default ports, even if we read other parameters from zabbix_server.conf
+[[ -z "$DBPORT" && "$DBTYPE" == "mysql" ]] && DBPORT="3306"
+[[ -z "$DBPORT" && "$DBTYPE" == "psql"  ]] && DBPORT="5432"
+
+# Options specified via command line override defaults or those from zabbix_server.conf (if any)
 [ ! -z "$ODBHOST" ] && DBHOST=$ODBHOST
 [ ! -z "$ODBPORT" ] && DBPORT=$ODBPORT
 [ ! -z "$ODBSOCKET" ] && DBSOCKET=$ODBSOCKET
@@ -232,7 +267,6 @@ case $DBTYPE in
         [ ! -z "$DBSOCKET" ] && DB_OPTS=("${DB_OPTS[@]}" -S $DBSOCKET)
         [ ! -z "$DBUSER" ] && DB_OPTS=("${DB_OPTS[@]}" -u $DBUSER)
         [ ! -z "$DBPASS" ] && DB_OPTS=("${DB_OPTS[@]}" -p"$DBPASS")
-        [ -z "$DBPORT" ] && DBPORT="3306"
         DB_OPTS=("${DB_OPTS[@]}" -P"$DBPORT")
         DB_OPTS_BATCH=("${DB_OPTS[@]}" --batch --silent)
         [ ! -z "$DBNAME" ] && DB_OPTS_BATCH=("${DB_OPTS_BATCH[@]}" -D $DBNAME)
@@ -240,7 +274,6 @@ case $DBTYPE in
     psql)
         [ ! -z "$DBSOCKET" ] && DB_OPTS=("${DB_OPTS[@]}" -h $DBSOCKET)
         [ ! -z "$DBUSER" ] && DB_OPTS=("${DB_OPTS[@]}" -U $DBUSER)
-        [ -z "$DBPORT" ] && DBPORT="5432"
         DB_OPTS=("${DB_OPTS[@]}" -p"$DBPORT")
         if [ ! -z "$DBPASS" ]; then
            export PGPASSFILE=$(mktemp -u)
@@ -271,7 +304,10 @@ if [ "$QUIET" == "no" ]; then
     cat <<-EOF
 Configuration:
  - type:     $DBTYPE
- - host:     $DBHOST ($DBHOSTNAME)
+EOF
+[ ! -z "$DBHOST" ] && echo " - host:     $DBHOST ($DBHOSTNAME)" && echo " - port:     $DBPORT"
+[ ! -z "$DBSOCKET" ] && echo " - socket:   $DBSOCKET"
+    cat <<-EOF
  - database: $DBNAME
  - user:     $DBUSER
  - output:   $DUMPDIR
