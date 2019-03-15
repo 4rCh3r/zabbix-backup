@@ -4,7 +4,7 @@
 #     zabbix-dump - Configuration Backup for Zabbix' MySQL or PostgreSQL data
 #
 # VERSION
-#     0.8.2
+#     0.9.0
 #
 # SYNOPSIS
 #     This is a MySQL configuration backup script for Zabbix 1.x, 2.x, 3.x and 4.x.
@@ -26,9 +26,14 @@
 #      - Ruslan Ohitin (ruslan-ohitin)
 #      - Jonathan Wright (neonardo1)
 #      - msjmeyer
+#      - Sergey Galkin (sergeygalkin)
+#      - Greg Cockburn (gergnz)
+#      - yangqi
+#      - Johannes Petz (PetzJohannes)
+#      - Wesley Schaft (wschaft)
 #
 # AUTHOR
-#     Jens Berthold (maxhq), 2016
+#     Jens Berthold (maxhq), 2019
 #
 # LICENSE
 #     This script is released under the MIT License (see LICENSE.txt)

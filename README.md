@@ -14,6 +14,20 @@ Please see the [Project Wiki](https://github.com/maxhq/zabbix-backup/wiki).
 
 ## Version history
 
+**0.9.0 (2019-03-14)**
+
+- NEW: Support for PostgreSQL databases (Sergey Galkin)
+- NEW: Option -P to specify database server port (Sergey Galkin)
+- NEW: Support for socket connections to MySQL and PostgreSQL server (Greg Cockburn)
+- NEW: Database connection parameters are read from Zabbix servern config by default (Greg Cockburn)
+- ENH: Support for Zabbix 4.0 (Wesley Schaft)
+- ENH: Options -h and --help to show help (hostname is now specified using -H)
+- CHG: Rename script to "zabbix-dump"
+- FIX: Support for whitespaces in database parameters (Greg Cockburn)
+- FIX: Support for backslashes in manually entered password (Greg Cockburn)
+-
+
+
 **0.8.2 (2016-09-08)**
 
 - NEW: Option -x to use XZ instead of GZ for compression (Jonathan Wright)
