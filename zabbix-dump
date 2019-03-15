@@ -55,8 +55,8 @@ COMPRESSION="gz"
 QUIET="no"
 REVERSELOOKUP="yes"
 GENERATIONSTOKEEP=0
-ZBXCONFIG="/etc/zabbix/zabbix_server.conf"
-READ_ZBXCONFIG="yes"
+ZBX_CONFIG="/etc/zabbix/zabbix_server.conf"
+READ_ZBX_CONFIG="yes"
 
 #
 # SHOW HELP
@@ -97,7 +97,7 @@ OPTIONS
 
     -z ZABBIX_CONFIG
         Read database host and credentials from given Zabbix config file.
-        Default: $ZBXCONFIG
+        Default: $ZBX_CONFIG
 
     -Z
         Do not try to read the Zabbix server configuration.
@@ -132,7 +132,7 @@ OPTIONS
 
 EXAMPLES
     # backup local Zabbix MySQL database into current directory
-    # (reads database access options from $ZBXCONFIG)
+    # (reads database access options from $ZBX_CONFIG)
     $(basename "${BASH_SOURCE[*]}")
 
     # backup PostgreSQL database
@@ -165,10 +165,10 @@ while getopts ":c:d:H:o:p:P:r:s:t:u:z:0nqxZ" opt; do
         u)  ODBUSER="$OPTARG" ;;
         P)  ODBPORT="$OPTARG" ;;
         p)  ODBPASS="$OPTARG" ;;
-        c)  CNFFILE="$OPTARG" ;;
+        c)  MYSQL_CONFIG="$OPTARG" ;;
         o)  DUMPDIR="$OPTARG" ;;
-        z)  ZBXCONFIG="$OPTARG" ;;
-        Z)  READ_ZBXCONFIG="no" ;;
+        z)  ZBX_CONFIG="$OPTARG" ;;
+        Z)  READ_ZBX_CONFIG="no" ;;
         r)  GENERATIONSTOKEEP=$(printf '%.0f' "$OPTARG") ;;
         x)  COMPRESSION="xz" ;;
         0)  COMPRESSION="" ;;
@@ -179,9 +179,9 @@ while getopts ":c:d:H:o:p:P:r:s:t:u:z:0nqxZ" opt; do
     esac
 done
 
-if [[ "${READ_ZBXCONFIG}" == "yes" && -f "${ZBXCONFIG}" && -r "${ZBXCONFIG}" ]]; then
-    [ "$QUIET" == "no" ] && echo "Reading database options from ${ZBXCONFIG}..."
-    source "${ZBXCONFIG}"
+if [[ "${READ_ZBX_CONFIG}" == "yes" && -f "${ZBX_CONFIG}" && -r "${ZBX_CONFIG}" ]]; then
+    [ "$QUIET" == "no" ] && echo "Reading database options from ${ZBX_CONFIG}..."
+    source "${ZBX_CONFIG}"
     DBHOST="${DBHost}"
     DBPORT="${DBPort}"
     DBSOCKET="${DBSocket}"
@@ -204,17 +204,17 @@ if [ "$DBPASS" = "-" ]; then
     echo ""
 fi
 
-# Config file validations
-if [ ! -z "$CNFFILE" ]; then
-    if [ ! -r "$CNFFILE" ]; then
-        echo "ERROR: Cannot read configuration file $CNFFILE" >&2
+# MySQL config file validations
+if [ ! -z "$MYSQL_CONFIG" ]; then
+    if [ ! -r "$MYSQL_CONFIG" ]; then
+        echo "ERROR: Cannot read configuration file $MYSQL_CONFIG" >&2
         exit 1
     fi
     # Database name needs special treatment:
     # For mysqldump it has to be specified on the command line!
     # Therefore we need to get it from the config file
     if [ $DB_GIVEN -eq 0 ]; then
-        DBNAME=$(grep -m 1 ^database= "$CNFFILE" | cut -d= -f2)
+        DBNAME=$(grep -m 1 ^database= "$MYSQL_CONFIG" | cut -d= -f2)
     fi
 fi
 
@@ -227,7 +227,7 @@ DB_OPTS=()
 [ ! -z "$DBHOST" ] && DB_OPTS=("${DB_OPTS[@]}" -h $DBHOST)
 case $DBTYPE in
     mysql)
-        [ ! -z "$CNFFILE" ] && DB_OPTS=("${DB_OPTS[@]}" --defaults-extra-file="$CNFFILE")
+        [ ! -z "$MYSQL_CONFIG" ] && DB_OPTS=("${DB_OPTS[@]}" --defaults-extra-file="$MYSQL_CONFIG")
         [ ! -z "$DBSOCKET" ] && DB_OPTS=("${DB_OPTS[@]}" -S $DBSOCKET)
         [ ! -z "$DBUSER" ] && DB_OPTS=("${DB_OPTS[@]}" -u $DBUSER)
         [ ! -z "$DBPASS" ] && DB_OPTS=("${DB_OPTS[@]}" -p"$DBPASS")
