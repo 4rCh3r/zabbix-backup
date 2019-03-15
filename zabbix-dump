@@ -305,14 +305,12 @@ if [ "$QUIET" == "no" ]; then
 Configuration:
  - type:     $DBTYPE
 EOF
-[ ! -z "$DBHOST" ] && echo " - host:     $DBHOST ($DBHOSTNAME)" && echo " - port:     $DBPORT"
-[ ! -z "$DBSOCKET" ] && echo " - socket:   $DBSOCKET"
-    cat <<-EOF
- - database: $DBNAME
- - user:     $DBUSER
- - output:   $DUMPDIR
-
-EOF
+    [ ! -z "$MYSQL_CONFIG" ] && echo " - cfg file: $MYSQL_CONFIG"
+    [ ! -z "$DBHOST" ] && echo " - host:     $DBHOST ($DBHOSTNAME)" && echo " - port:     $DBPORT"
+    [ ! -z "$DBSOCKET" ] && echo " - socket:   $DBSOCKET"
+    [ ! -z "$DBNAME" ] && echo " - database: $DBNAME"
+    [ ! -z "$DBUSER" ] && echo " - user:     $DBUSER"
+    [ ! -z "$DUMPDIR" ] && echo " - output:   $DUMPDIR"
 fi
 
 #
