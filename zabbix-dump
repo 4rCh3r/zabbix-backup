@@ -278,6 +278,7 @@ case $DBTYPE in
     mysql)
         [ ! -z "$MYSQL_CONFIG" ] && DB_OPTS=("${DB_OPTS[@]}" --defaults-extra-file="$MYSQL_CONFIG")
         [ ! -z "$DBSOCKET" ] && DB_OPTS=("${DB_OPTS[@]}" -S $DBSOCKET)
+        [ ! -z "$DBHOST" ] && DB_OPTS=("${DB_OPTS[@]}" -h $DBHOST)
         [ ! -z "$DBUSER" ] && DB_OPTS=("${DB_OPTS[@]}" -u $DBUSER)
         [ ! -z "$DBPASS" ] && DB_OPTS=("${DB_OPTS[@]}" -p"$DBPASS")
         DB_OPTS=("${DB_OPTS[@]}" -P"$DBPORT")
