@@ -14,6 +14,10 @@ Please see the [Project Wiki](https://github.com/maxhq/zabbix-backup/wiki).
 
 ## Version history
 
+**0.9.1 (2019-03-21)**
+
+- FIX: Correctly process hostname option -H (Tiago Cruz)
+
 **0.9.0 (2019-03-14)**
 
 - NEW: Support for PostgreSQL databases (Sergey Galkin)
@@ -26,8 +30,6 @@ Please see the [Project Wiki](https://github.com/maxhq/zabbix-backup/wiki).
 - CHG: Rename script to "zabbix-dump"
 - FIX: Support for whitespaces in database parameters (Greg Cockburn)
 - FIX: Support for backslashes in manually entered password (Greg Cockburn)
--
-
 
 **0.8.2 (2016-09-08)**
 

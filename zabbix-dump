@@ -4,7 +4,7 @@
 #     zabbix-dump - Configuration Backup for Zabbix' MySQL or PostgreSQL data
 #
 # VERSION
-#     0.9.0
+#     0.9.1
 #
 # SYNOPSIS
 #     This is a MySQL configuration backup script for Zabbix 1.x, 2.x, 3.x and 4.x.
@@ -31,6 +31,7 @@
 #      - yangqi
 #      - Johannes Petz (PetzJohannes)
 #      - Wesley Schaft (wschaft)
+#      - Tiago Cruz (tiago-cruz-movile)
 #
 # AUTHOR
 #     Jens Berthold (maxhq), 2019
