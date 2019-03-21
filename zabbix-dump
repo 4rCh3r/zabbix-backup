@@ -287,6 +287,7 @@ case $DBTYPE in
         ;;
     psql)
         [ ! -z "$DBSOCKET" ] && DB_OPTS=("${DB_OPTS[@]}" -h $DBSOCKET)
+        [ ! -z "$DBHOST" ] && DB_OPTS=("${DB_OPTS[@]}" -h $DBHOST)
         [ ! -z "$DBUSER" ] && DB_OPTS=("${DB_OPTS[@]}" -U $DBUSER)
         DB_OPTS=("${DB_OPTS[@]}" -p"$DBPORT")
         if [ ! -z "$DBPASS" ]; then
@@ -298,7 +299,6 @@ case $DBTYPE in
         [ ! -z "$DBNAME" ] && DB_OPTS_BATCH=("${DB_OPTS_BATCH[@]}" -d $DBNAME)
         ;;
 esac
-[ ! -z "$DBHOST" ] && DB_OPTS=("${DB_OPTS[@]}" -h $DBHOST)
 
 # Log file for errors
 ERRORLOG=$(mktemp)
